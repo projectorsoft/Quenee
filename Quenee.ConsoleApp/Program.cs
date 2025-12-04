@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Quenee.ConsoleApp.Commands;
 using System;
 
 namespace Quenee.ConsoleApp
@@ -9,26 +8,8 @@ namespace Quenee.ConsoleApp
         static void Main(string[] args)
         {
             var startup = new Startup();
-
             startup.ConfigureServices();
-
             using var scope = startup.ServiceProvider.CreateScope();
-
-            //while (true)
-            //{
-            //    Console.WriteLine("Enter command:");
-            //    var commandLine = Console.ReadLine();
-            //    var commandParser = new CommandParser(commandLine);
-
-            //    if (commandParser.CommandName.ToLower() == "exit")
-            //        break;
-            //    else
-            //    {
-            //        Console.WriteLine($"{commandParser.CommandName}:");
-            //        foreach (string param in commandParser.Parameters.Keys)
-            //            Console.WriteLine($"{param}={commandParser[param]}");
-            //    }
-            //}
 
             var game = scope.ServiceProvider.GetRequiredService<Game>();
 
@@ -37,15 +18,30 @@ namespace Quenee.ConsoleApp
                 Console.WriteLine("Enter fen:");
                 string fen = Console.ReadLine();
 
+                if (string.IsNullOrEmpty(fen))
+                    continue;
+
                 Console.WriteLine("Ply:");
-                int ply = int.Parse(Console.ReadLine());
+                if (!int.TryParse(Console.ReadLine(), out var ply))
+                    continue;
 
-                game.Run(fen, ply);
+                //prevent too big depth
+                if (ply > 10)
+                    continue;
 
-                startup.DisposeServices();
+                try
+                {
+                    game.Run(fen, ply);
+                }
+                catch (Exception ex)
+                {
+                    continue;
+                }
 
                 Console.ReadLine();
             }
+
+            startup.DisposeServices();
         }
     }
 }

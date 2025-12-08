@@ -13,21 +13,32 @@ namespace Quenee.ConsoleApp
 
             var game = scope.ServiceProvider.GetRequiredService<Game>();
 
+            startup.DisposeServices();
+
             while (true)
             {
-                Console.WriteLine("Enter fen:");
+                Console.Write("Enter fen: ");
                 string fen = Console.ReadLine();
 
                 if (string.IsNullOrEmpty(fen))
+                {
+                    Console.WriteLine();
                     continue;
+                }
 
-                Console.WriteLine("Ply:");
+                Console.Write("Ply: ");
                 if (!int.TryParse(Console.ReadLine(), out var ply))
+                {
+                    Console.WriteLine();
                     continue;
+                }
 
                 //prevent too big depth
                 if (ply > 10)
+                {
+                    Console.WriteLine();
                     continue;
+                }
 
                 try
                 {
@@ -38,10 +49,8 @@ namespace Quenee.ConsoleApp
                     continue;
                 }
 
-                Console.ReadLine();
+                Console.WriteLine();
             }
-
-            startup.DisposeServices();
         }
     }
 }

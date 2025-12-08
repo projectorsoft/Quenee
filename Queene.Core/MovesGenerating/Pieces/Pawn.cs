@@ -1,6 +1,7 @@
 ﻿using Queene.Core.Consts;
 using Queene.Core.Enums;
 using Queene.Core.Models;
+using Queene.Core.MovesGenerating.Hashing;
 using Queene.Core.MovesGenerating.PiecesList;
 using Queene.Core.Utils;
 using QueeneEngine.Engine.Magics;
@@ -13,8 +14,8 @@ namespace Queene.Core.MovesGenerating.Pieces
     {
         public override PieceTypeEnum PieceType => PieceTypeEnum.Pawn;
 
-        private readonly ulong[] EnPassantShiftMasks = new ulong[2] { 0x1c0000000, 0x1c000000000 };
-        public readonly ulong[] PromotionRank = new ulong[2] { BoardConsts.RANK_1_FULL_STATE, BoardConsts.RANK_8_FULL_STATE };
+        private readonly ulong[] EnPassantShiftMasks = [0x1c0000000, 0x1c000000000];
+        public readonly ulong[] PromotionRank = [BoardConsts.RANK_1_FULL_STATE, BoardConsts.RANK_8_FULL_STATE];
 
         public Pawn(BitBoardContext bitBoardContext,
             MovesContainer movesContainer,
@@ -103,9 +104,11 @@ namespace Queene.Core.MovesGenerating.Pieces
             //enPassant
             if (move.MoveType == MoveTypeEnum.EnPassante)
             {
-                var capturedSquare = _bitBoardContext.Player.Current == Player.White ? (byte)(move.To - 8) : (byte)(move.To + 8);
+                var capturedSquare = _bitBoardContext.Player.Current == Player.White ? BoardConsts.SQUARES_BACKWARD[move.To] : BoardConsts.SQUARES_FORWARD[move.To];
                 _bitBoardContext.Pieces[_bitBoardContext.Player.Oponnent][(byte)PieceTypeEnum.Pawn] ^= Powers.powersOfTwo[capturedSquare];
                 _bitBoardContext.Pieces[_bitBoardContext.Player.Oponnent][(byte)PieceTypeEnum.All] ^= Powers.powersOfTwo[capturedSquare];
+
+                ComputeHash();
             }
 
             base.MakeMove(move);
@@ -114,15 +117,25 @@ namespace Queene.Core.MovesGenerating.Pieces
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void UnmakeMove(ExtendedMove move)
         {
+            base.UnmakeMove(move);
+
             //enPassant
             if (move.MoveType == MoveTypeEnum.EnPassante)
             {
-                var capturedSquare = _bitBoardContext.Player.Current == Player.White ? (byte)(move.To - 8) : (byte)(move.To + 8);
+                var capturedSquare = _bitBoardContext.Player.Current == Player.White ? BoardConsts.SQUARES_BACKWARD[move.To] : BoardConsts.SQUARES_FORWARD[move.To];
                 _bitBoardContext.Pieces[_bitBoardContext.Player.Oponnent][(byte)PieceTypeEnum.Pawn] |= Powers.powersOfTwo[capturedSquare];
                 _bitBoardContext.Pieces[_bitBoardContext.Player.Oponnent][(byte)PieceTypeEnum.All] |= Powers.powersOfTwo[capturedSquare];
-            }
 
-            base.UnmakeMove(move);
+                ComputeHash();
+            }
+        }
+
+        private void ComputeHash()
+        {
+            if (_bitBoardContext.Player.Current == Player.White)
+                _bitBoardContext.Hash ^= ZorbistHash.EnPassante[Player.White][_bitBoardContext.EnPassantSquare.Value - 40];
+            else
+                _bitBoardContext.Hash ^= ZorbistHash.EnPassante[Player.Black][_bitBoardContext.EnPassantSquare.Value - 16];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -191,15 +204,6 @@ namespace Queene.Core.MovesGenerating.Pieces
                     if (CheckEnPassantMoveMakesDiscoveredCheck(square))
                         continue;
 
-                    //if (_bitBoardContext.PinnedSquares != 0)
-                    //{
-                    //    if ((_bitBoardContext.PinnedSquares & Powers.powersOfTwo[square]) != 0)
-                    //    {
-                    //        if ((square & _bitBoardContext.Pinners) == 0)
-                    //            continue;
-                    //    }
-                    //}
-
                     _movesList.Add(new Move(square, _bitBoardContext.EnPassantSquare.Value, MoveTypeEnum.EnPassante));
                 }
             }
@@ -210,8 +214,8 @@ namespace Queene.Core.MovesGenerating.Pieces
             //clear oponnent pawn
             ulong occupiedSquares = _bitBoardContext.OccupiedSquares;
             occupiedSquares ^= _bitBoardContext.Player.Current == Player.White
-                ? Powers.powersOfTwo[_bitBoardContext.EnPassantSquare.Value - 8]
-                : Powers.powersOfTwo[_bitBoardContext.EnPassantSquare.Value + 8];
+                ? Powers.powersOfTwo[BoardConsts.SQUARES_BACKWARD[_bitBoardContext.EnPassantSquare.Value]]
+                : Powers.powersOfTwo[BoardConsts.SQUARES_FORWARD[_bitBoardContext.EnPassantSquare.Value]];
 
             //clear current player pawn
             occupiedSquares ^= Powers.powersOfTwo[square];

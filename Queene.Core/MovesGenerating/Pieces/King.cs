@@ -1,6 +1,7 @@
 ﻿using Queene.Core.Consts;
 using Queene.Core.Enums;
 using Queene.Core.Models;
+using Queene.Core.MovesGenerating.Hashing;
 using Queene.Core.MovesGenerating.PiecesList;
 using QueeneEngine.Engine.Magics;
 using QueeneEngine.Helpers.Bitwise;
@@ -12,19 +13,19 @@ namespace Queene.Core.MovesGenerating.Pieces
     {
         public byte Square => _bitBoardContext.PieceTypeList[_bitBoardContext.Player.Current][(byte)PieceTypeEnum.King].GetAtIndex(0);
 
-        public static readonly byte[] InitialSquare = new byte[] { 59, 3 };
+        public static readonly byte[] InitialSquare = [59, 3];
 
         public override PieceTypeEnum PieceType => PieceTypeEnum.King;
 
         //Contains valid square number for castling as a mask
-        private readonly ulong[] _castleKingSideDestinationSquareMasks = new ulong[] { 0x200000000000000, 0x2 };
-        private readonly ulong[] _castleQueenSideDestinationSquareMasks = new ulong[] { 0x2000000000000000, 0x20 };
+        private readonly ulong[] _castleKingSideDestinationSquareMasks = [0x200000000000000, 0x2];
+        private readonly ulong[] _castleQueenSideDestinationSquareMasks = [0x2000000000000000, 0x20];
 
-        private readonly ulong[] _castleKingSideSquaresLine = new ulong[] { 0x600000000000000, 0x6 };
-        private readonly ulong[] _castleQueenSideOccupancySquaresLine = new ulong[] { 0x7000000000000000, 0x70 };
+        private readonly ulong[] _castleKingSideSquaresLine = [0x600000000000000, 0x6];
+        private readonly ulong[] _castleQueenSideOccupancySquaresLine = [0x7000000000000000, 0x70];
 
-        private readonly byte[][] _castleKingSideSquares = new byte[2][] { new byte[] { 57, 58 }, new byte[] { 1, 2 } };
-        private readonly byte[][] _castleQueenSideSquares = new byte[2][] { new byte[] { 60, 61 }, new byte[] { 4, 5 } };
+        private readonly byte[][] _castleKingSideSquares = [[57, 58], [1, 2]];
+        private readonly byte[][] _castleQueenSideSquares = [[60, 61], [4, 5]];
 
         private readonly byte[] _movesCounter = new byte[2];
 
@@ -72,7 +73,11 @@ namespace Queene.Core.MovesGenerating.Pieces
             }
             //first king move - castling is impossible
             else if (_movesCounter[_bitBoardContext.Player.Current] == 0)
+            {
                 _bitBoardContext.SetCastleAllowance(_bitBoardContext.Player.Current, false);
+                _bitBoardContext.Hash ^= ZorbistHash.KingSideCastle[_bitBoardContext.Player.Current];
+                _bitBoardContext.Hash ^= ZorbistHash.QueenSideCastle[_bitBoardContext.Player.Current];
+            }
 
             //standard not castling move breaks castling ability
             if (_bitBoardContext.CanCastle[_bitBoardContext.Player.Current])
@@ -91,7 +96,6 @@ namespace Queene.Core.MovesGenerating.Pieces
         {
             _movesCounter[_bitBoardContext.Player.Current]--;
 
-
             if (move.MoveType == MoveTypeEnum.Castle)
             {
                 MakeUnmakeCastleMove(move);
@@ -105,7 +109,11 @@ namespace Queene.Core.MovesGenerating.Pieces
             }
             //first king move - castling is again possible
             else if (_movesCounter[_bitBoardContext.Player.Current] == 0) //TODO: case when position read from FEN and king is already somewhere on the board
+            {
                 _bitBoardContext.SetCastleAllowance(_bitBoardContext.Player.Current, true);
+                _bitBoardContext.Hash ^= ZorbistHash.KingSideCastle[_bitBoardContext.Player.Current];
+                _bitBoardContext.Hash ^= ZorbistHash.QueenSideCastle[_bitBoardContext.Player.Current];
+            }
 
             if (move.CastleBreak)
                 _bitBoardContext.CanCastle[_bitBoardContext.Player.Current] = true;
@@ -122,6 +130,8 @@ namespace Queene.Core.MovesGenerating.Pieces
                 _bitBoardContext.Pieces[_bitBoardContext.Player.Current][(byte)PieceTypeEnum.Rook] ^= Powers.powersOfTwo[Rook.KingSideDestinationSquare[_bitBoardContext.Player.Current]];
                 _bitBoardContext.Pieces[_bitBoardContext.Player.Current][(byte)PieceTypeEnum.All] ^= Powers.powersOfTwo[Rook.KingSideSourceSquare[_bitBoardContext.Player.Current]];
                 _bitBoardContext.Pieces[_bitBoardContext.Player.Current][(byte)PieceTypeEnum.All] ^= Powers.powersOfTwo[Rook.KingSideDestinationSquare[_bitBoardContext.Player.Current]];
+
+                _bitBoardContext.Hash ^= ZorbistHash.KingSideCastle[_bitBoardContext.Player.Current];
             }
             else if (move.IsCastleQueenSideMove)
             {
@@ -129,6 +139,8 @@ namespace Queene.Core.MovesGenerating.Pieces
                 _bitBoardContext.Pieces[_bitBoardContext.Player.Current][(byte)PieceTypeEnum.Rook] ^= Powers.powersOfTwo[Rook.QueenSideDestinationSquare[_bitBoardContext.Player.Current]];
                 _bitBoardContext.Pieces[_bitBoardContext.Player.Current][(byte)PieceTypeEnum.All] ^= Powers.powersOfTwo[Rook.QueenSideSourceSquare[_bitBoardContext.Player.Current]];
                 _bitBoardContext.Pieces[_bitBoardContext.Player.Current][(byte)PieceTypeEnum.All] ^= Powers.powersOfTwo[Rook.QueenSideDestinationSquare[_bitBoardContext.Player.Current]];
+
+                _bitBoardContext.Hash ^= ZorbistHash.QueenSideCastle[_bitBoardContext.Player.Current];
             }
         }
 

@@ -1,5 +1,6 @@
 ﻿using Queene.Core.Enums;
 using Queene.Core.Models;
+using Queene.Core.MovesGenerating.Hashing;
 using Queene.Core.MovesGenerating.PiecesList;
 using QueeneEngine.Engine.Magics;
 using QueeneEngine.Helpers.Bitwise;
@@ -11,10 +12,10 @@ namespace Queene.Core.MovesGenerating.Pieces
     {
         public override PieceTypeEnum PieceType => PieceTypeEnum.Rook;
 
-        public static readonly byte[] KingSideSourceSquare = new byte[] { 56, 0 };
-        public static readonly byte[] QueenSideSourceSquare = new byte[] { 63, 7 };
-        public static readonly byte[] KingSideDestinationSquare = new byte[] { 58, 2 };
-        public static readonly byte[] QueenSideDestinationSquare = new byte[] { 60, 4 };
+        public static readonly byte[] KingSideSourceSquare = [56, 0];
+        public static readonly byte[] QueenSideSourceSquare = [63, 7];
+        public static readonly byte[] KingSideDestinationSquare = [58, 2];
+        public static readonly byte[] QueenSideDestinationSquare = [60, 4];
 
         public Rook(BitBoardContext bitBoardContext,
             MovesContainer movesContainer,
@@ -39,11 +40,13 @@ namespace Queene.Core.MovesGenerating.Pieces
                 {
                     move.KingSideCastleBreak = true;
                     _bitBoardContext.SetKingSideCastleAllowance(_bitBoardContext.Player.Current, false);
+                    _bitBoardContext.Hash ^= ZorbistHash.KingSideCastle[_bitBoardContext.Player.Current];
                 }
                 else if (_bitBoardContext.CanCastleQueenSide[_bitBoardContext.Player.Current] && move.From == QueenSideSourceSquare[_bitBoardContext.Player.Current])
                 {
                     move.QueenSideCastleBreak = true;
                     _bitBoardContext.SetQueenSideCastleAllowance(_bitBoardContext.Player.Current, false);
+                    _bitBoardContext.Hash ^= ZorbistHash.KingSideCastle[_bitBoardContext.Player.Current];
                 }
             }
 
@@ -54,9 +57,15 @@ namespace Queene.Core.MovesGenerating.Pieces
         public override void UnmakeMove(ExtendedMove move)
         {
             if (move.KingSideCastleBreak)
+            {
                 _bitBoardContext.SetKingSideCastleAllowance(_bitBoardContext.Player.Current, true);
+                _bitBoardContext.Hash ^= ZorbistHash.KingSideCastle[_bitBoardContext.Player.Current];
+            }
             else if (move.QueenSideCastleBreak)
+            {
                 _bitBoardContext.SetQueenSideCastleAllowance(_bitBoardContext.Player.Current, true);
+                _bitBoardContext.Hash ^= ZorbistHash.KingSideCastle[_bitBoardContext.Player.Current];
+            }
 
             base.UnmakeMove(move);
         }

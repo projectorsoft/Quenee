@@ -33,6 +33,8 @@ namespace Queene.Core.MovesGenerating
 
 		public ulong OpponentRooksAndQueens { get; private set; }
 		public ulong OpponentBishopsAndQueens { get; private set; }
+		public ulong Hash {  get; set; }
+
 
 		private readonly IBitBoardContextConverter _bitBoardContextConverter;
 
@@ -117,7 +119,7 @@ namespace Queene.Core.MovesGenerating
 		public void SetKingSideCastleAllowance(byte player, bool value)
 		{
 			CanCastleKingSide[player] = value;
-		}
+        }
 
 		//Only when rook moved
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

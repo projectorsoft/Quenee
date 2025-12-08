@@ -51,7 +51,7 @@ namespace Queene.Core.Models
 
             if (MoveType == MoveTypeEnum.EnPassante)
             {
-                var capturedSquare = context.Player.Current == Player.White ? (byte)(To - 8) : (byte)(To + 8);
+                var capturedSquare = context.Player.Current == Player.White ? BoardConsts.SQUARES_BACKWARD[To] : BoardConsts.SQUARES_FORWARD[To];
                 Captured = context.GetCapturedPieceType(capturedSquare, context.Player.Oponnent);
             }
             else

@@ -4,6 +4,7 @@ using Queene.Core.Fen;
 using Queene.Core.Magics;
 using Queene.Core.Models;
 using Queene.Core.MovesGenerating;
+using Queene.Core.MovesGenerating.Hashing;
 using Queene.Core.MovesGenerating.Pieces;
 using Queene.Core.MovesGenerating.PiecesList;
 using QueeneEngine.Engine.Magics;
@@ -25,6 +26,7 @@ namespace Queene.Core
 
         public Board(IBitBoardContextConverter bitBoardContextConverter)
         {
+            ZorbistHash.Init();
             _magicsBinaryPersister = new MagicsBinaryPersisterService();
             _movesContainer = new MovesContainer(_magicsBinaryPersister);
             _bitBoard = new BitBoard(_movesContainer, bitBoardContextConverter);
@@ -51,8 +53,8 @@ namespace Queene.Core
         public Move[] GenerateMoves(MoveGenerationTypeEnum generationType = MoveGenerationTypeEnum.All)
         {
             _movesList.Clear();
-
             _bitBoard.Context.SetOpponnentSliders();
+
             var king = (King)_pieces[(byte)PieceTypeEnum.King];
 
             _bitBoard.SetupCheckingSquaresAndAttackers(_bitBoard.Context.Player, king.Square);
@@ -82,6 +84,7 @@ namespace Queene.Core
 
             _pieces[(byte)extMove.PieceType].MakeMove(extMove);
             _bitBoard.Context.Player.Change();
+            _bitBoard.Context.Hash ^= ZorbistHash.Player[_bitBoard.Context.Player.Current];
 
             return extMove;
         }
@@ -91,6 +94,7 @@ namespace Queene.Core
         {
             _bitBoard.Context.Player.Change();
             _pieces[(byte)extMove.PieceType].UnmakeMove(extMove);
+            _bitBoard.Context.Hash ^= ZorbistHash.Player[_bitBoard.Context.Player.Current];
         }
 
         public string GetFen()

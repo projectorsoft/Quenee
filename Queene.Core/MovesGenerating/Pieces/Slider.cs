@@ -95,11 +95,11 @@ namespace Queene.Core.MovesGenerating.Pieces
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ulong GetXRayAttacks(ulong occcupied, ulong blockers, byte rookSquare, MagicResult[] magics)
+        public static ulong GetXRayAttacks(ulong occcupied, ulong blockers, byte square, MagicResult[] magics)
         {
-            ulong attacks = GetAttacks(rookSquare, occcupied, magics);
+            ulong attacks = GetAttacks(square, occcupied, magics);
             blockers &= attacks;
-            return attacks ^ GetAttacks(rookSquare, occcupied ^ blockers, magics);
+            return attacks ^ GetAttacks(square, occcupied ^ blockers, magics);
         }
     }
 }

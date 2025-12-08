@@ -3,6 +3,7 @@ using Queene.Core.Converters;
 using Queene.Core.Enums;
 using Queene.Core.Fen;
 using Queene.Core.Models;
+using Queene.Core.MovesGenerating.Hashing;
 using Queene.Core.MovesGenerating.Pieces;
 using Queene.Core.Utils;
 using QueeneEngine.Engine.Magics;
@@ -10,7 +11,6 @@ using QueeneEngine.Helpers.Bitwise;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace Queene.Core.MovesGenerating
@@ -19,7 +19,6 @@ namespace Queene.Core.MovesGenerating
 	{
 		private readonly BitBoardContext _context;
 		private readonly MovesContainer _movesContainer;
-		private static readonly HashSet<ulong> _cache = new HashSet<ulong>();
 
 		public BitBoardContext Context => _context;
 
@@ -36,20 +35,6 @@ namespace Queene.Core.MovesGenerating
 
 		public void NewGame()
 		{
-			_context.Pieces[Player.Black][(byte)PieceTypeEnum.Pawn] = BoardConsts.B_PAWNS_STARTING_POS;
-			_context.Pieces[Player.Black][(byte)PieceTypeEnum.Rook] = BoardConsts.B_ROOKS_STARTING_POS;
-			_context.Pieces[Player.Black][(byte)PieceTypeEnum.Knight] = BoardConsts.B_KNIGHTS_STARTING_POS;
-			_context.Pieces[Player.Black][(byte)PieceTypeEnum.Bishop] = BoardConsts.B_BISHOPS_STARTING_POS;
-			_context.Pieces[Player.Black][(byte)PieceTypeEnum.Queen] = BoardConsts.B_QUEENS_STARTING_POS;
-			_context.Pieces[Player.Black][(byte)PieceTypeEnum.King] = BoardConsts.B_KING_STARTING_POS;
-
-			_context.Pieces[Player.White][(byte)PieceTypeEnum.Pawn] = BoardConsts.W_PAWNS_STARTING_POS;
-			_context.Pieces[Player.White][(byte)PieceTypeEnum.Rook] = BoardConsts.W_ROOKS_STARTING_POS;
-			_context.Pieces[Player.White][(byte)PieceTypeEnum.Knight] = BoardConsts.W_KNIGHTS_STARTING_POS;
-			_context.Pieces[Player.White][(byte)PieceTypeEnum.Bishop] = BoardConsts.W_BISHOPS_STARTING_POS;
-			_context.Pieces[Player.White][(byte)PieceTypeEnum.Queen] = BoardConsts.W_QUEENS_STARTING_POS;
-			_context.Pieces[Player.White][(byte)PieceTypeEnum.King] = BoardConsts.W_KING_STARTING_POS;
-
 			var boardState = FenHelper.CreateBoardState(FenHelper.FEN_INITIAL_START_POSITION);
 			SetupBoard(boardState);
 		}
@@ -76,15 +61,17 @@ namespace Queene.Core.MovesGenerating
 			UpdateAllPiecesMasks();
 			UpdateBoardState();
 
-			_context.SetOpponnentSliders();
+            _context.SetOpponnentSliders();
 			_context.InitPiecesList();
 
 			var kingSquare = _context.PieceTypeList[_context.Player.Current][(byte)PieceTypeEnum.King].GetAtIndex(0);
 
 			SetupCastlingRights(state);
-			SetupCheckingSquaresAndAttackers(_context.Player, kingSquare);
-			SetupPinnedPiecesAndPinners(_context.Player, kingSquare);
-		}
+
+            _context.Hash = ZorbistHash.CreateHash(_context);
+            SetupCheckingSquaresAndAttackers(_context.Player, kingSquare);
+            SetupPinnedPiecesAndPinners(_context.Player, kingSquare);
+        }
 
 		private void SetupCastlingRights(BoardState state)
 		{
@@ -186,38 +173,6 @@ namespace Queene.Core.MovesGenerating
 			_context.PinnedSquares = GetPinnedPieces(player, kingSquare, out ulong pinners);
 			_context.Pinners = pinners;
 		}
-
-		//[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		//public bool IsSquareAttacked(Player player, byte square)
-		//{
-		//	if (!_cache.Exists(_context.Hash))
-		//          {
-		//		var isCheck = IsSquareAttacked(_context, _movesContainer, player, square);
-		//		if (isCheck)
-		//			_cache.Add(_context.Hash);
-
-		//		return isCheck;
-		//          }
-
-		//	return true;
-		//	//return IsSquareAttacked(_context, _movesContainer, player, square);
-		//}
-
-		//[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		//public static bool IsSquareAttacked(BitBoardContext context, MovesContainer movesContainer, Player player, byte square)
-		//{
-		//	if (!_cache.Contains(context.Hash))
-		//	{
-		//		var isCheck = IsSquareAttacked1(context, movesContainer, player, square);
-		//		if (isCheck)
-		//			_cache.Add(context.Hash);
-
-		//		return isCheck;
-		//	}
-
-		//	return true;
-		//	//return IsSquareAttacked(_context, _movesContainer, player, square);
-		//}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool IsSquareAttacked(BitBoardContext context, MovesContainer movesContainer, Player player, byte square)

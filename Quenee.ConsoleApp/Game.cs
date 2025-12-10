@@ -1,6 +1,7 @@
 ﻿using Queene.Core;
 using Queene.Core.Converters;
 using Queene.Core.Engine;
+using Queene.Core.MovesGenerating.Hashing;
 using System;
 using System.Diagnostics;
 
@@ -13,6 +14,7 @@ namespace Quenee.ConsoleApp
         public Game(IBitBoardContextConverter bitBoardContextConverter)
         {
             _board = new Board(bitBoardContextConverter);
+            ZorbistHash.Init();
         }
 
         public void Run(string fen, int depth)
@@ -24,28 +26,22 @@ namespace Quenee.ConsoleApp
         {
             _board.NewGame(fen);
 
-            var perft = new Perft(_board);
+            var perft = new ParallelPerft(_board);
+            perft.OnPrintResults += PrintMoves;
 
-            Stopwatch stopwatch = new Stopwatch();
+            var stopwatch = new Stopwatch();
             stopwatch.Start();
 
-            var movesCount = perft.Run(depth, true);
+            var movesCount = perft.RunInParallel(depth, Environment.ProcessorCount);
 
             stopwatch.Stop();
 
-            var details = perft.GetDetails;
-
-            for (int i = 0; i < details.RootNodes.Length; i++)
-            {
-                Console.WriteLine($"{details.RootNodes[i].Move}: {details.RootNodes[i].Count}");
-            }
-
             Console.WriteLine($"Moves count: {movesCount} in {stopwatch.ElapsedMilliseconds} ms");
+        }
 
-            //Console.WriteLine($"Captures count: {detail.Captures}");
-            //Console.WriteLine($"EnPassante count: {detail.EnPassante}");
-            //Console.WriteLine($"Castles count: {detail.Castles}");
-            //Console.WriteLine($"Promotions count: {detail.Promotions}");
+        private static void PrintMoves(string move, ulong count)
+        {
+            Console.WriteLine($"{move}: {count}");
         }
     }
 }

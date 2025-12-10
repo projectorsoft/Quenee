@@ -82,7 +82,6 @@ namespace Queene.Core.MovesGenerating.Pieces
             _bitBoardContext.EmptySquares = ~_bitBoardContext.OccupiedSquares;
 
             _piecesListService.MakeMove(move);
-            //_bitBoardContext.ComputeHash(move);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -123,7 +122,6 @@ namespace Queene.Core.MovesGenerating.Pieces
             _bitBoardContext.EmptySquares = ~_bitBoardContext.OccupiedSquares;
 
             _piecesListService.UnmakeMove(move);
-            //_bitBoardContext.ComputeHash(move);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

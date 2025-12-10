@@ -104,13 +104,13 @@ namespace Queene.Core.Converters
 				castlings = "Q";
 
 			if (_boardState.BlackCastlingRights == CastleTypeEnum.Both)
-				castlings = "kq";
+				castlings += "kq";
 			else
 				if (_boardState.BlackCastlingRights == CastleTypeEnum.CastleKingSide)
-				castlings = "k";
+				castlings += "k";
 			else
 				if (_boardState.BlackCastlingRights == CastleTypeEnum.CastleQueenSide)
-				castlings = "q";
+				castlings += "q";
 
 			return castlings;
 		}

@@ -26,7 +26,7 @@ namespace Queene.Core
 
         public Board(IBitBoardContextConverter bitBoardContextConverter)
         {
-            ZorbistHash.Init();
+            //ZorbistHash.Init();
             _magicsBinaryPersister = new MagicsBinaryPersisterService();
             _movesContainer = new MovesContainer(_magicsBinaryPersister);
             _bitBoard = new BitBoard(_movesContainer, bitBoardContextConverter);

@@ -1,1 +1,1 @@
-Queene chess moves generator
+Quenee chess moves generator

@@ -1,4 +1,5 @@
 ﻿using Queene.Core.Converters;
+using Queene.Core.MovesGenerating.Hashing;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -29,7 +30,7 @@ namespace Queene.Core.Engine
 
                 Interlocked.Add(ref count, nodes);
 
-                OnPrintResults?.Invoke(move.ToString(), count);
+                OnPrintResults?.Invoke(move.ToString(), nodes);
             });
 
             return count;

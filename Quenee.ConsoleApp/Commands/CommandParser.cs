@@ -1,116 +1,130 @@
-﻿using System;
-using System.Collections.Specialized;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Quenee.ConsoleApp.Commands.Abstract;
+using Quenee.ConsoleApp.Commands.Exceptions;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 
 namespace Quenee.ConsoleApp.Commands
 {
     public class CommandParser
     {
-        // Variables
-        public StringDictionary Parameters { get; private set; }
-        public string CommandName { get; private set; }
+        private readonly IServiceProvider _serviceProvider;
 
-        // Retrieve a parameter value if it exists 
-        // (overriding C# indexer property)
-        public string this[string Param]
+        public CommandParser(IServiceProvider serviceProvider)
         {
-            get
+            _serviceProvider = serviceProvider;
+        }
+
+        public void Execute(string commandLine)
+        {
+            try
             {
-                return (Parameters[Param]);
+                if (string.IsNullOrWhiteSpace(commandLine))
+                    throw new CommandParserException(new ArgumentException("Invalid command provided"));
+
+                var args = SplitCommand(commandLine.Trim(' '));
+
+                var interfaceType = typeof(ICommand<,>);
+
+                var types = Assembly.GetExecutingAssembly()
+                    .GetTypes()
+                    .Where(x => x.IsClass && x.IsPublic && !x.IsAbstract);
+
+                foreach (var type in types)
+                {
+                    var iface = type.GetInterfaces().FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == interfaceType);
+
+                    if (iface == null)
+                        continue;
+
+                    Type toCreate = type;
+
+                    var command = ActivatorUtilities.CreateInstance(_serviceProvider, toCreate);
+
+                    if (command != null)
+                    {
+                        var commandNameProperty = type.GetProperties().FirstOrDefault(x => x.Name == nameof(ICommand<,>.Name));
+
+                        //check command name matches
+                        if (!commandNameProperty.GetValue(command).ToString().Equals(args[0], StringComparison.InvariantCultureIgnoreCase))
+                            continue;
+
+                        var requestType = iface.GenericTypeArguments[0];
+                        var requestProperties = requestType.GetProperties().ToList();
+                        var requestInstance = Activator.CreateInstance(requestType);
+
+                        var commandParamsProperty = type.GetProperties().FirstOrDefault(x => x.Name == nameof(ICommand<,>.Params));
+                        var commandParameters = commandParamsProperty.GetValue(command) as List<CommandParameterBase>;
+
+                        var index = 1;
+
+                        foreach (var param in commandParameters.OrderBy(x => x.Order))
+                        {
+                            var requestProperty = requestProperties
+                                .Where(x => x.Name.Equals(param.Name, StringComparison.InvariantCultureIgnoreCase))
+                                .FirstOrDefault();
+
+                            if (param.IsRequired && requestProperty == null)
+                                throw new CommandParserException(new ArgumentException($"Parameter {param.Name} is required"));
+
+                            if (param.IsRequired && index > args.Length - 1)
+                                throw new CommandParserException(new ArgumentException($"Parameter {param.Name} is required"));
+
+                            if (index > args.Length - 1)
+                                break;
+
+                            switch (requestProperty.PropertyType.Name)
+                            {
+                                case "Int32":
+                                    if (Int32.TryParse(args[index++], out var number))
+                                        requestProperty.SetValue(requestInstance, number);
+                                    else
+                                        throw new CommandParserException(new ArgumentException($"Invalid property {requestProperty.Name}"));
+
+                                    break;
+                                case "String":
+                                    requestProperty.SetValue(requestInstance, args[index++].Trim('\''));
+                                    break;
+                            }
+                        }
+
+                        var executeMethos = toCreate.GetMethod(nameof(ICommand<,>.Execute), [requestType]);
+                        executeMethos.Invoke(command, [requestInstance]);
+
+                        return;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new CommandParserException(ex);
             }
         }
 
-        // Constructor
-        public CommandParser(string commandLine)
+        private static string[] SplitCommand(string commandLine)
         {
-            if (string.IsNullOrWhiteSpace(commandLine))
-                throw new ArgumentException("Invalid command provided");
+            string pattern = @"'((?:\\'|[^'])*)'|(\S+)";
+            var matches = Regex.Matches(commandLine, pattern);
 
-            string[] args = commandLine.Split(' ');
+            var tokens = new List<string>();
 
-            CommandName = args[0];
-
-            Parameters = new StringDictionary();
-            Regex Spliter = new Regex(@"^-{1,2}|^/|=|:",
-                RegexOptions.IgnoreCase | RegexOptions.Compiled);
-
-            Regex Remover = new Regex(@"^['""]?(.*?)['""]?$",
-                RegexOptions.IgnoreCase | RegexOptions.Compiled);
-
-            string Parameter = null;
-            string[] Parts;
-
-            // Valid parameters forms:
-            // {-,/,--}param{ ,=,:}((",')value(",'))
-            // Examples: 
-            // -param1 value1 --param2 /param3:"Test-:-work" 
-            //   /param4=happy -param5 '--=nice=--'
-            foreach (string arg in args)
+            foreach (Match m in matches)
             {
-                // Look for new parameters (-,/ or --) and a
-                // possible enclosed value (=,:)
-                Parts = Spliter.Split(arg, 3);
-
-                switch (Parts.Length)
+                if (m.Groups[1].Success)
                 {
-                    // Found a value (for the last parameter 
-                    // found (space separator))
-                    case 1:
-                        if (Parameter != null)
-                        {
-                            if (!Parameters.ContainsKey(Parameter))
-                            {
-                                Parts[0] =
-                                    Remover.Replace(Parts[0], "$1");
+                    string inside = m.Groups[1].Value;
 
-                                Parameters.Add(Parameter, Parts[0]);
-                            }
-                            Parameter = null;
-                        }
-                        // else Error: no parameter waiting for a value (skipped)
-                        break;
-
-                    // Found just a parameter
-                    case 2:
-                        // The last parameter is still waiting. 
-                        // With no value, set it to true.
-                        if (Parameter != null)
-                        {
-                            if (!Parameters.ContainsKey(Parameter))
-                                Parameters.Add(Parameter, "true");
-                        }
-                        Parameter = Parts[1];
-                        break;
-
-                    // Parameter with enclosed value
-                    case 3:
-                        // The last parameter is still waiting. 
-                        // With no value, set it to true.
-                        if (Parameter != null)
-                        {
-                            if (!Parameters.ContainsKey(Parameter))
-                                Parameters.Add(Parameter, "true");
-                        }
-
-                        Parameter = Parts[1];
-
-                        // Remove possible enclosing characters (",')
-                        if (!Parameters.ContainsKey(Parameter))
-                        {
-                            Parts[2] = Remover.Replace(Parts[2], "$1");
-                            Parameters.Add(Parameter, Parts[2]);
-                        }
-
-                        Parameter = null;
-                        break;
+                    inside = inside.Replace("\\'", "'");
+                    tokens.Add(inside);
                 }
+                else
+                    tokens.Add(m.Groups[2].Value);
             }
-            // In case a parameter is still waiting
-            if (Parameter != null)
-            {
-                if (!Parameters.ContainsKey(Parameter))
-                    Parameters.Add(Parameter, "true");
-            }
+
+            return tokens.ToArray();
         }
     }
 }

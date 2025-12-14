@@ -16,6 +16,7 @@ namespace Queene.Core
 
             serviceCollection.AddSingleton<BitBoardContext>();
             serviceCollection.AddSingleton<MovesContainer>();
+            serviceCollection.AddSingleton<Board>();
         }
     }
 }

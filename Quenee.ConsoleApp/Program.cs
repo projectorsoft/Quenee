@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Quenee.ConsoleApp.Commands;
+using Quenee.ConsoleApp.Commands.Exceptions;
 using System;
 
 namespace Quenee.ConsoleApp
@@ -11,46 +13,27 @@ namespace Quenee.ConsoleApp
             startup.ConfigureServices();
             using var scope = startup.ServiceProvider.CreateScope();
 
-            var game = scope.ServiceProvider.GetRequiredService<Game>();
-
-            startup.DisposeServices();
+            var parser = new CommandParser(scope.ServiceProvider);
 
             while (true)
             {
-                Console.Write("Enter fen: ");
-                string fen = Console.ReadLine();
-
-                if (string.IsNullOrEmpty(fen))
-                {
-                    Console.WriteLine();
-                    continue;
-                }
-
-                Console.Write("Ply: ");
-                if (!int.TryParse(Console.ReadLine(), out var ply))
-                {
-                    Console.WriteLine();
-                    continue;
-                }
-
-                //prevent too big depth
-                if (ply > 10)
-                {
-                    Console.WriteLine();
-                    continue;
-                }
+                Console.Write("Type command: ");
+                var command = Console.ReadLine();
 
                 try
                 {
-                    game.Run(fen, ply);
+                    parser.Execute(command);
                 }
-                catch (Exception ex)
+                catch (CommandParserException ex)
                 {
+                    Console.WriteLine(ex.InnerException.Message);
                     continue;
                 }
 
                 Console.WriteLine();
             }
+
+            startup.DisposeServices();
         }
     }
 }

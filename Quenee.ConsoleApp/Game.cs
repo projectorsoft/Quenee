@@ -15,6 +15,7 @@ namespace Quenee.ConsoleApp
         {
             _board = new Board(bitBoardContextConverter);
             ZorbistHash.Init();
+            PerftTranspositionTable.Init();
         }
 
         public void Run(string fen, int depth)
@@ -24,6 +25,7 @@ namespace Quenee.ConsoleApp
 
         private void Perft(string fen, int depth)
         {
+            //PerftTranspositionTable.Init();
             _board.NewGame(fen);
 
             var perft = new ParallelPerft(_board);

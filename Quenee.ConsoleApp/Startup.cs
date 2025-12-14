@@ -18,7 +18,6 @@ namespace Quenee.ConsoleApp
         public void ConfigureServices()
         {
             QueeneIocModule.RegisterServices(_serviceCollection);
-            _serviceCollection.AddSingleton<Game>();
 
             ServiceProvider = _serviceCollection.BuildServiceProvider(true);
         }

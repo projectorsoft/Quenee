@@ -1,5 +1,4 @@
 ﻿using Queene.Core;
-using Queene.Core.Converters;
 using Queene.Core.Engine;
 using Queene.Core.MovesGenerating.Hashing;
 using Quenee.ConsoleApp.Commands.Abstract;
@@ -30,7 +29,7 @@ namespace Quenee.ConsoleApp.Commands.PerftCommand
         public PerftCommandResponse Execute(PerftCommandRequest request)
         {
             Console.WriteLine($"Running perft using {request.MaxParallelOperations} tasks");
-            //PerftTranspositionTable.Init();
+
             _board.NewGame(_board.BitBoardContext.ToString());
 
             var perft = new ParallelPerft(_board);

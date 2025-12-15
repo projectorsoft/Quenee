@@ -11,8 +11,8 @@ namespace Quenee.ConsoleApp
         {
             var startup = new Startup();
             startup.ConfigureServices();
-            using var scope = startup.ServiceProvider.CreateScope();
 
+            using var scope = startup.ServiceProvider.CreateScope();
             var parser = new CommandParser(scope.ServiceProvider);
 
             while (true)
@@ -26,14 +26,11 @@ namespace Quenee.ConsoleApp
                 }
                 catch (CommandParserException ex)
                 {
-                    Console.WriteLine(ex.InnerException.Message);
-                    continue;
+                    Console.WriteLine(ex.InnerException.InnerException.Message);
                 }
 
                 Console.WriteLine();
             }
-
-            startup.DisposeServices();
         }
     }
 }

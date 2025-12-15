@@ -14,9 +14,15 @@ namespace Queene.Core.MovesGenerating.Hashing
 
         private static readonly Random _rnd = new();
 
+        private static bool _isInstantiated;
+
         static ZorbistHash()
         {
-            Init();
+            if (!_isInstantiated)
+            {
+                _isInstantiated = true;
+                Init();
+            }
         }
 
         public static void Init()

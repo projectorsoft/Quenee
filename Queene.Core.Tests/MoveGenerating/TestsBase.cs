@@ -3,7 +3,6 @@ using Queene.Core.Converters;
 using Queene.Core.Magics;
 using Queene.Core.Models;
 using Queene.Core.MovesGenerating;
-using Queene.Core.MovesGenerating.Hashing;
 using Queene.Core.MovesGenerating.PiecesList;
 using QueeneEngine.Engine.Magics;
 
@@ -22,7 +21,6 @@ namespace Queene.Core.Tests.MoveGenerating
 
         public TestsBase()
         {
-            ZorbistHash.Init();
             _fixture = new Fixture();
             _magicsBinaryPersister = new MagicsBinaryPersisterService();
             _movesContainer = new MovesContainer(_magicsBinaryPersister);

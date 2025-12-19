@@ -1,9 +1,7 @@
 ﻿using FluentAssertions;
-using Queene.Core.Converters;
 using Queene.Core.Enums;
 using Queene.Core.Fen;
 using Queene.Core.Models;
-using Queene.Core.MovesGenerating.Hashing;
 using Queene.Core.MovesGenerating.Pieces;
 using System.Linq;
 using Xunit;
@@ -17,28 +15,27 @@ namespace Queene.Core.Tests.MoveGenerating.Hashing
         {
             //Arrange
             //Act
-            ZorbistHash.Init();
 
             //Assert
             for (PieceTypeEnum piece = PieceTypeEnum.Knight; piece <= PieceTypeEnum.King; piece++)
             {
                 for (int square = 0; square < 64; square++)
-                    ZorbistHash.Pieces[(byte)piece][square].Should().BeGreaterThan(0);
+                    _zorbistHash.Pieces[(byte)piece][square].Should().BeGreaterThan(0);
             }
 
             for (PlayerEnum player = PlayerEnum.Black; player <= PlayerEnum.White; player++)
             {
                 for (int i = 0; i < 8; i++)
-                    ZorbistHash.EnPassante[(byte)player][i].Should().BeGreaterThan(0);
+                    _zorbistHash.EnPassante[(byte)player][i].Should().BeGreaterThan(0);
             }
 
             for (PlayerEnum player = PlayerEnum.Black; player <= PlayerEnum.White; player++)
-                ZorbistHash.Player[(byte)player].Should().BeGreaterThan(0);
+                _zorbistHash.Player[(byte)player].Should().BeGreaterThan(0);
 
             for (PlayerEnum player = PlayerEnum.Black; player <= PlayerEnum.White; player++)
             {
-                ZorbistHash.KingSideCastle[(byte)player].Should().BeGreaterThan(0);
-                ZorbistHash.QueenSideCastle[(byte)player].Should().BeGreaterThan(0);
+                _zorbistHash.KingSideCastle[(byte)player].Should().BeGreaterThan(0);
+                _zorbistHash.QueenSideCastle[(byte)player].Should().BeGreaterThan(0);
             }
         }
 
@@ -46,7 +43,7 @@ namespace Queene.Core.Tests.MoveGenerating.Hashing
         public void ShouldCreateHashBasedOnBitBoard()
         {
             //Arrange
-            var board = new Board(new BitBoardContextConverter(new BoardStateToFenConverter()));
+            var board = new Board(_bitBoardContextConverter, _zorbistHash);
             board.NewGame(FenHelper.FEN_INITIAL_START_POSITION);
 
             //Act
@@ -64,7 +61,7 @@ namespace Queene.Core.Tests.MoveGenerating.Hashing
             _bitBoard.SetupBoard(boardState);
             var hash = _bitBoard.Context.Hash;
 
-            var piece = new King(_bitBoard.Context, _movesContainer, _movesList, _piecesListService);
+            var piece = new King(_bitBoard.Context, _movesList, _piecesListService, _zorbistHash);
 
             // Act
             piece.GenerateMoves(MoveGenerationTypeEnum.All);
@@ -90,7 +87,7 @@ namespace Queene.Core.Tests.MoveGenerating.Hashing
             _bitBoard.SetupBoard(boardState);
             var hash = _bitBoard.Context.Hash;
 
-            var piece = new King(_bitBoard.Context, _movesContainer, _movesList, _piecesListService);
+            var piece = new King(_bitBoard.Context, _movesList, _piecesListService, _zorbistHash);
 
             // Act
             piece.GenerateMoves(MoveGenerationTypeEnum.All);
@@ -114,7 +111,7 @@ namespace Queene.Core.Tests.MoveGenerating.Hashing
             _bitBoard.SetupBoard(boardState);
             var hash = _bitBoard.Context.Hash;
 
-            var piece = new Pawn(_bitBoard.Context, _movesContainer, _movesList, _piecesListService);
+            var piece = new Pawn(_bitBoard.Context, _movesList, _piecesListService, _zorbistHash);
 
             // Act
             piece.GenerateMoves(MoveGenerationTypeEnum.All);
@@ -142,7 +139,7 @@ namespace Queene.Core.Tests.MoveGenerating.Hashing
             _bitBoard.SetupBoard(boardState);
             var hash = _bitBoard.Context.Hash;
 
-            var piece = new Pawn(_bitBoard.Context, _movesContainer, _movesList, _piecesListService);
+            var piece = new Pawn(_bitBoard.Context, _movesList, _piecesListService, _zorbistHash);
 
             // Act
             piece.GenerateMoves(MoveGenerationTypeEnum.All);

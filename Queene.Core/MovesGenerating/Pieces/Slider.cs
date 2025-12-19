@@ -2,9 +2,9 @@
 using Queene.Core.Enums;
 using Queene.Core.Magics;
 using Queene.Core.Models;
+using Queene.Core.MovesGenerating.Hashing;
 using Queene.Core.MovesGenerating.PiecesList;
 using Queene.Core.Utils;
-using QueeneEngine.Engine.Magics;
 using QueeneEngine.Helpers.Bitwise;
 using System.Runtime.CompilerServices;
 
@@ -12,11 +12,11 @@ namespace Queene.Core.MovesGenerating.Pieces
 {
     public abstract class Slider : PieceBase
     {
-        public Slider(BitBoardContext bitBoardContext,
-            MovesContainer movesContainer,
+        public Slider(BoardContext bitBoardContext,
             IList<Move> movesList,
-            IPiecesListService piecesListService)
-            : base(bitBoardContext, movesContainer, movesList, piecesListService)
+            IPiecesListService piecesListService,
+            ZorbistHash zorbistHash)
+            : base(bitBoardContext, movesList, piecesListService, zorbistHash)
         {
         }
 

@@ -13,15 +13,16 @@ namespace Queene.Core.MovesGenerating.Pieces
     public class Pawn : PieceBase, IPiece
     {
         public override PieceTypeEnum PieceType => PieceTypeEnum.Pawn;
+        public const int Value = 100;
 
         private readonly ulong[] EnPassantShiftMasks = [0x1c0000000, 0x1c000000000];
         public readonly ulong[] PromotionRank = [BoardConsts.RANK_1_FULL_STATE, BoardConsts.RANK_8_FULL_STATE];
 
-        public Pawn(BitBoardContext bitBoardContext,
-            MovesContainer movesContainer,
+        public Pawn(BoardContext bitBoardContext,
             IList<Move> movesList,
-            IPiecesListService piecesListService)
-            : base(bitBoardContext, movesContainer, movesList, piecesListService)
+            IPiecesListService piecesListService,
+            ZorbistHash zorbistHash)
+            : base(bitBoardContext, movesList, piecesListService, zorbistHash)
         {
         }
 
@@ -39,17 +40,17 @@ namespace Queene.Core.MovesGenerating.Pieces
                 {
                     if (generationType == MoveGenerationTypeEnum.All 
                         && !BitwiseHelper.IsSet(_bitBoardContext.OccupiedSquares, BoardConsts.SQUARES_FORWARD[_square]))
-                        _moves = _movesContainer.PawnWhiteMoves[_square] & _bitBoardContext.EmptySquares;
+                        _moves = MovesContainer.PawnWhiteMoves[_square] & _bitBoardContext.EmptySquares;
 
-                    _captures = _movesContainer.PawnWhiteCaptures[_square] & _bitBoardContext.Pieces[_bitBoardContext.Player.Oponnent][(byte)PieceTypeEnum.All];
+                    _captures = MovesContainer.PawnWhiteCaptures[_square] & _bitBoardContext.Pieces[_bitBoardContext.Player.Oponnent][(byte)PieceTypeEnum.All];
                 }
                 else
                 {
                     if (generationType == MoveGenerationTypeEnum.All 
                         && !BitwiseHelper.IsSet(_bitBoardContext.OccupiedSquares, BoardConsts.SQUARES_BACKWARD[_square]))
-                        _moves = _movesContainer.PawnBlackMoves[_square] & _bitBoardContext.EmptySquares;
+                        _moves = MovesContainer.PawnBlackMoves[_square] & _bitBoardContext.EmptySquares;
 
-                    _captures = _movesContainer.PawnBlackCaptures[_square] & _bitBoardContext.Pieces[_bitBoardContext.Player.Oponnent][(byte)PieceTypeEnum.All];
+                    _captures = MovesContainer.PawnBlackCaptures[_square] & _bitBoardContext.Pieces[_bitBoardContext.Player.Oponnent][(byte)PieceTypeEnum.All];
                 }
 
                 if (_bitBoardContext.Attackers != 0)
@@ -133,9 +134,9 @@ namespace Queene.Core.MovesGenerating.Pieces
         private void ComputeHash()
         {
             if (_bitBoardContext.Player.Current == Player.White)
-                _bitBoardContext.Hash ^= ZorbistHash.EnPassante[Player.White][_bitBoardContext.EnPassantSquare.Value - 40];
+                _bitBoardContext.Hash ^= _zorbistHash.EnPassante[Player.White][_bitBoardContext.EnPassantSquare.Value - 40];
             else
-                _bitBoardContext.Hash ^= ZorbistHash.EnPassante[Player.Black][_bitBoardContext.EnPassantSquare.Value - 16];
+                _bitBoardContext.Hash ^= _zorbistHash.EnPassante[Player.Black][_bitBoardContext.EnPassantSquare.Value - 16];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -221,8 +222,8 @@ namespace Queene.Core.MovesGenerating.Pieces
             occupiedSquares ^= Powers.powersOfTwo[square];
             occupiedSquares ^= Powers.powersOfTwo[_bitBoardContext.EnPassantSquare.Value];
 
-            ulong rookAttacked = Slider.GetAttacks(_bitBoardContext.PieceTypeList[_bitBoardContext.Player.Current][(byte)PieceTypeEnum.King].GetAtIndex(0), occupiedSquares, _movesContainer.RookMagics);
-            ulong bishopAttacked = Slider.GetAttacks(_bitBoardContext.PieceTypeList[_bitBoardContext.Player.Current][(byte)PieceTypeEnum.King].GetAtIndex(0), occupiedSquares, _movesContainer.BishopMagics);
+            ulong rookAttacked = Slider.GetAttacks(_bitBoardContext.PieceTypeList[_bitBoardContext.Player.Current][(byte)PieceTypeEnum.King].GetAtIndex(0), occupiedSquares, MovesContainer.RookMagics);
+            ulong bishopAttacked = Slider.GetAttacks(_bitBoardContext.PieceTypeList[_bitBoardContext.Player.Current][(byte)PieceTypeEnum.King].GetAtIndex(0), occupiedSquares, MovesContainer.BishopMagics);
 
             return ((rookAttacked & _bitBoardContext.OpponentRooksAndQueens) != 0) 
                 || ((bishopAttacked & _bitBoardContext.OpponentBishopsAndQueens) != 0);

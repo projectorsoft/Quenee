@@ -17,21 +17,19 @@ namespace Queene.Core.MovesGenerating
 {
     public class BitBoard
 	{
-		private readonly BitBoardContext _context;
-		private readonly MovesContainer _movesContainer;
+		private readonly BoardContext _context;
+        private readonly ZorbistHash _zorbistHash;
 
-		public BitBoardContext Context => _context;
+        public BoardContext Context => _context;
 
-		public BitBoard(MovesContainer movesContainer,
-			IBitBoardContextConverter bitBoardContextConverter)
+		public BitBoard(IBitBoardContextConverter bitBoardContextConverter,
+			ZorbistHash zorbistHash)
 		{
-			_context = new BitBoardContext(bitBoardContextConverter);
-			_movesContainer = movesContainer;
+			_context = new BoardContext(bitBoardContextConverter);
+            _zorbistHash = zorbistHash;
 
-			SquaresBetweenMasksGeneratorHelper.GenerateMasksBeetwenSquares();
-
-			NewGame();
-		}
+            NewGame();
+        }
 
 		public void NewGame()
 		{
@@ -68,7 +66,7 @@ namespace Queene.Core.MovesGenerating
 
 			SetupCastlingRights(state);
 
-            _context.Hash = ZorbistHash.CreateHash(_context);
+            _context.Hash = _zorbistHash.CreateHash(_context);
             SetupCheckingSquaresAndAttackers(_context.Player, kingSquare);
             SetupPinnedPiecesAndPinners(_context.Player, kingSquare);
         }
@@ -175,30 +173,30 @@ namespace Queene.Core.MovesGenerating
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static bool IsSquareAttacked(BitBoardContext context, MovesContainer movesContainer, Player player, byte square)
+		public static bool IsSquareAttacked(BoardContext context, Player player, byte square)
 		{
 			ulong attacked;
 
-			if ((movesContainer.KnightMoves[square] & context.Pieces[player.Oponnent][(byte)PieceTypeEnum.Knight]) != 0)
+			if ((MovesContainer.KnightMoves[square] & context.Pieces[player.Oponnent][(byte)PieceTypeEnum.Knight]) != 0)
 				return true;
 
 			if (player.Current == Player.White)
-				attacked = movesContainer.PawnWhiteCaptures[square];
+				attacked = MovesContainer.PawnWhiteCaptures[square];
 			else
-				attacked = movesContainer.PawnBlackCaptures[square];
+				attacked = MovesContainer.PawnBlackCaptures[square];
 
 			if ((attacked & context.Pieces[player.Oponnent][(byte)PieceTypeEnum.Pawn]) != 0)
 				return true;
 
-			if ((movesContainer.KingMoves[square] & context.Pieces[player.Oponnent][(byte)PieceTypeEnum.King]) != 0)
+			if ((MovesContainer.KingMoves[square] & context.Pieces[player.Oponnent][(byte)PieceTypeEnum.King]) != 0)
 				return true;
 
-			attacked = Slider.GetAttacks(square, context.OccupiedSquares, movesContainer.BishopMagics);
+			attacked = Slider.GetAttacks(square, context.OccupiedSquares, MovesContainer.BishopMagics);
 
 			if ((attacked & context.OpponentBishopsAndQueens) != 0)
 				return true;
 
-			attacked = Slider.GetAttacks(square, context.OccupiedSquares, movesContainer.RookMagics);
+			attacked = Slider.GetAttacks(square, context.OccupiedSquares, MovesContainer.RookMagics);
 
 			if ((attacked & context.OpponentRooksAndQueens) != 0)
 				return true;
@@ -211,7 +209,7 @@ namespace Queene.Core.MovesGenerating
 			ulong result = 0;
 			byte toSquare;
 
-			ulong attacksToSquare = attackers = Slider.GetAttacks(square, _context.OccupiedSquares, _movesContainer.RookMagics) & _context.OpponentRooksAndQueens;
+			ulong attacksToSquare = attackers = Slider.GetAttacks(square, _context.OccupiedSquares, MovesContainer.RookMagics) & _context.OpponentRooksAndQueens;
 
 			while (attacksToSquare > 0)
 			{
@@ -222,7 +220,7 @@ namespace Queene.Core.MovesGenerating
 				attacksToSquare ^= Powers.powersOfTwo[toSquare];
 			}
 
-			attacksToSquare = Slider.GetAttacks(square, _context.OccupiedSquares, _movesContainer.BishopMagics) & _context.OpponentBishopsAndQueens;
+			attacksToSquare = Slider.GetAttacks(square, _context.OccupiedSquares, MovesContainer.BishopMagics) & _context.OpponentBishopsAndQueens;
 			attackers |= attacksToSquare;
 
 			while (attacksToSquare > 0)
@@ -234,18 +232,18 @@ namespace Queene.Core.MovesGenerating
 				attacksToSquare ^= Powers.powersOfTwo[toSquare];
 			}
 
-			attacksToSquare = _movesContainer.KnightMoves[square] & _context.Pieces[player.Oponnent][(byte)PieceTypeEnum.Knight];
+			attacksToSquare = MovesContainer.KnightMoves[square] & _context.Pieces[player.Oponnent][(byte)PieceTypeEnum.Knight];
 			attackers |= attacksToSquare;
 			result |= attacksToSquare;
 
-            attacksToSquare = _movesContainer.KingMoves[square] & _context.Pieces[player.Oponnent][(byte)PieceTypeEnum.King];
+            attacksToSquare = MovesContainer.KingMoves[square] & _context.Pieces[player.Oponnent][(byte)PieceTypeEnum.King];
             attackers |= attacksToSquare;
             result |= attacksToSquare;
 
             if (player.Current == Player.White)
-				attacksToSquare = _movesContainer.PawnWhiteCaptures[square] & _context.Pieces[player.Oponnent][(byte)PieceTypeEnum.Pawn];
+				attacksToSquare = MovesContainer.PawnWhiteCaptures[square] & _context.Pieces[player.Oponnent][(byte)PieceTypeEnum.Pawn];
 			else
-				attacksToSquare = _movesContainer.PawnBlackCaptures[square] & _context.Pieces[player.Oponnent][(byte)PieceTypeEnum.Pawn];
+				attacksToSquare = MovesContainer.PawnBlackCaptures[square] & _context.Pieces[player.Oponnent][(byte)PieceTypeEnum.Pawn];
 
 			attackers |= attacksToSquare;
 			result |= attacksToSquare;
@@ -257,7 +255,7 @@ namespace Queene.Core.MovesGenerating
 		private ulong GetPinnedPieces(Player player, byte kingSquare, out ulong pinners)
 		{
 			ulong pinnedSquares = 0;
-			ulong pinner = pinners = Slider.GetXRayAttacks(_context.OccupiedSquares, _context.Pieces[player.Current][(byte)PieceTypeEnum.All], kingSquare, _movesContainer.RookMagics) & _context.OpponentRooksAndQueens;
+			ulong pinner = pinners = Slider.GetXRayAttacks(_context.OccupiedSquares, _context.Pieces[player.Current][(byte)PieceTypeEnum.All], kingSquare, MovesContainer.RookMagics) & _context.OpponentRooksAndQueens;
 
 			byte toSquare;
 
@@ -268,7 +266,7 @@ namespace Queene.Core.MovesGenerating
 				pinner ^= Powers.powersOfTwo[toSquare];
 			}
 
-			pinner = Slider.GetXRayAttacks(_context.OccupiedSquares, _context.Pieces[player.Current][(byte)PieceTypeEnum.All], kingSquare, _movesContainer.BishopMagics) & _context.OpponentBishopsAndQueens;
+			pinner = Slider.GetXRayAttacks(_context.OccupiedSquares, _context.Pieces[player.Current][(byte)PieceTypeEnum.All], kingSquare, MovesContainer.BishopMagics) & _context.OpponentBishopsAndQueens;
 			pinners |= pinner;
 
 			while (pinner > 0)

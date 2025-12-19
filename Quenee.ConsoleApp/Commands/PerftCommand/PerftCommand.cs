@@ -1,8 +1,7 @@
-﻿using Queene.Core;
-using Queene.Core.Engine;
-using Queene.Core.MovesGenerating.Hashing;
+﻿using Microsoft.Extensions.Logging;
+using Queene.Core;
+using Queene.Core.Engine.PerftCounter;
 using Quenee.ConsoleApp.Commands.Abstract;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
@@ -17,22 +16,21 @@ namespace Quenee.ConsoleApp.Commands.PerftCommand
                 new CommandParameter<int>(nameof(PerftCommandRequest.MaxParallelOperations), 1, required: false)
             ];
 
-        private readonly Board _board;
+        private readonly IQueeneGame _game;
+        private readonly ILogger<PerftCommand> _logger;
 
-        public PerftCommand(Board board)
+        public PerftCommand(IQueeneGame game,
+            ILogger<PerftCommand> logger)
         {
-            ZorbistHash.Init();
-            _board = board;
-            //PerftTranspositionTable.Init();
+            _game = game;
+            _logger = logger;
         }
 
         public PerftCommandResponse Execute(PerftCommandRequest request)
         {
-            Console.WriteLine($"Running perft using {request.MaxParallelOperations} tasks");
+            _logger.Log(LogLevel.Information, $"Running perft using {request.MaxParallelOperations} tasks");
 
-            _board.NewGame(_board.BitBoardContext.ToString());
-
-            var perft = new ParallelPerft(_board);
+            var perft = new ParallelPerft(_game);
             perft.OnPrintResults += PrintMoves;
 
             var stopwatch = new Stopwatch();
@@ -42,7 +40,7 @@ namespace Quenee.ConsoleApp.Commands.PerftCommand
 
             stopwatch.Stop();
 
-            Console.WriteLine($"Moves count: {movesCount} in {stopwatch.ElapsedMilliseconds} ms");
+            _logger.Log(LogLevel.Information, $"Moves count: {movesCount} in {stopwatch.ElapsedMilliseconds} ms");
 
             return new PerftCommandResponse
             {
@@ -51,9 +49,9 @@ namespace Quenee.ConsoleApp.Commands.PerftCommand
             };
         }
 
-        private static void PrintMoves(string move, ulong count)
+        private void PrintMoves(string move, ulong count)
         {
-            Console.WriteLine($"{move}: {count}");
+            _logger.Log(LogLevel.Information, $"{move}: {count}");
         }
     }
 }

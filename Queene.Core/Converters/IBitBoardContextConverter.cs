@@ -5,6 +5,6 @@ namespace Queene.Core.Converters
 {
     public interface IBitBoardContextConverter
     {
-        BoardState Convert(BitBoardContext bitBoardContext);
+        BoardState Convert(BoardContext bitBoardContext);
     }
 }

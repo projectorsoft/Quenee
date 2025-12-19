@@ -25,7 +25,7 @@ namespace Queene.Core.Tests.Converters
         public void ShouldSetPlayer(PlayerEnum playerEnum) 
         {
             // Arrange
-            var bitBoardContext = _fixture.Build<BitBoardContext>()
+            var bitBoardContext = _fixture.Build<BoardContext>()
                 .Without(b => b.EnPassantSquare)
                 .Create();
             bitBoardContext.Player.Set(playerEnum);
@@ -41,7 +41,7 @@ namespace Queene.Core.Tests.Converters
         public void ShouldSetEmptyEnPassantSquare() 
         {
             // Arrange
-            var bitBoardContext = _fixture.Build<BitBoardContext>()
+            var bitBoardContext = _fixture.Build<BoardContext>()
                 .With(b => b.EnPassantSquare, (byte?)null)
                 .Create();
 
@@ -65,7 +65,7 @@ namespace Queene.Core.Tests.Converters
         {
             // Arrange
             _fixture.Freeze<BitBoardContextConverter>();
-            var bitBoardContext = _fixture.Build<BitBoardContext>()
+            var bitBoardContext = _fixture.Build<BoardContext>()
                 .With(b => b.EnPassantSquare, square)
                 .Create();
 
@@ -88,7 +88,7 @@ namespace Queene.Core.Tests.Converters
         public void ShouldSetEnPassantSquareForBlack(byte square, string squareName) 
         {
             // Arrange
-            var bitBoardContext = _fixture.Build<BitBoardContext>()
+            var bitBoardContext = _fixture.Build<BoardContext>()
                 .With(b => b.EnPassantSquare, square)
                 .Create();
 
@@ -103,7 +103,7 @@ namespace Queene.Core.Tests.Converters
         public void ShouldSetWhiteCastlingRightsToNone() 
         {
             // Arrange
-            var bitBoardContext = _fixture.Build<BitBoardContext>()
+            var bitBoardContext = _fixture.Build<BoardContext>()
                 .Without(b => b.EnPassantSquare)
                 .Create();
             bitBoardContext.SetCastleAllowance((byte)PlayerEnum.White, false);
@@ -119,7 +119,7 @@ namespace Queene.Core.Tests.Converters
         public void ShouldSetWhiteCastlingRightsToCastleKingSide() 
         {
             // Arrange
-            var bitBoardContext = _fixture.Build<BitBoardContext>()
+            var bitBoardContext = _fixture.Build<BoardContext>()
                 .Without(b => b.EnPassantSquare)
                 .Create();
             bitBoardContext.SetCastleAllowance((byte)PlayerEnum.White, true);
@@ -136,7 +136,7 @@ namespace Queene.Core.Tests.Converters
         public void ShouldSetWhiteCastlingRightsToCastleQueenSide()
         {
             // Arrange
-            var bitBoardContext = _fixture.Build<BitBoardContext>()
+            var bitBoardContext = _fixture.Build<BoardContext>()
                 .Without(b => b.EnPassantSquare)
                 .Create();
             bitBoardContext.SetCastleAllowance((byte)PlayerEnum.White, true);
@@ -153,7 +153,7 @@ namespace Queene.Core.Tests.Converters
         public void ShouldSetWhiteCastlingRightsToBoth() 
         {
             // Arrange
-            var bitBoardContext = _fixture.Build<BitBoardContext>()
+            var bitBoardContext = _fixture.Build<BoardContext>()
                 .Without(b => b.EnPassantSquare)
                 .Create();
             bitBoardContext.SetAllCastlesAllowance((byte)PlayerEnum.White, true);
@@ -169,7 +169,7 @@ namespace Queene.Core.Tests.Converters
         public void ShouldSetBlackCastlingRightsToNone () 
         {
             // Arrange
-            var bitBoardContext = _fixture.Build<BitBoardContext>()
+            var bitBoardContext = _fixture.Build<BoardContext>()
                 .Without(b => b.EnPassantSquare)
                 .Create();
             bitBoardContext.SetCastleAllowance((byte) PlayerEnum.Black, false);
@@ -185,7 +185,7 @@ namespace Queene.Core.Tests.Converters
         public void ShouldSetBlackCastlingRightsToCastleKingSide() 
         {
             // Arrange
-            var bitBoardContext = _fixture.Build<BitBoardContext>()
+            var bitBoardContext = _fixture.Build<BoardContext>()
                 .Without(b => b.EnPassantSquare)
                 .Create();
             bitBoardContext.SetCastleAllowance((byte)PlayerEnum.Black, true);
@@ -202,7 +202,7 @@ namespace Queene.Core.Tests.Converters
         public void ShouldSetBlackCastlingRightsToCastleQueenSide() 
         {
             // Arrange
-            var bitBoardContext = _fixture.Build<BitBoardContext>()
+            var bitBoardContext = _fixture.Build<BoardContext>()
                 .Without(b => b.EnPassantSquare)
                 .Create();
             bitBoardContext.SetCastleAllowance ((byte)PlayerEnum.Black, true);
@@ -219,7 +219,7 @@ namespace Queene.Core.Tests.Converters
         public void ShouldSetBlackCastlingRightsToBoth()
         {
             // Arrange
-            var bitBoardContext = _fixture.Build<BitBoardContext>()
+            var bitBoardContext = _fixture.Build<BoardContext>()
                 .Without(b => b.EnPassantSquare)
                 .Create();
             bitBoardContext.SetAllCastlesAllowance((byte)PlayerEnum.Black, true);
@@ -237,10 +237,11 @@ namespace Queene.Core.Tests.Converters
             // Arrange
             var boardState = FenHelper.CreateBoardState("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KkQq - 0 1");
 
-            _bitBoard.SetupBoard(boardState);
+            var bitBoard = new BitBoard(_bitBoardContextConverter, _zorbistHash);
+            bitBoard.SetupBoard(boardState);
 
             // Act
-            var newBoardState = _bitBoardContextConverter.Convert (_bitBoard.Context);
+            var newBoardState = _bitBoardContextConverter.Convert(bitBoard.Context);
 
             // Assert
             newBoardState.WhitePieces[PieceTypeEnum.Rook].Should().BeEquivalentTo (new List<byte> { 0, 7 });

@@ -11,24 +11,25 @@ namespace Queene.Core.MovesGenerating.Pieces
     public class Rook : Slider, IPiece
     {
         public override PieceTypeEnum PieceType => PieceTypeEnum.Rook;
+        public const int Value = 500;
 
         public static readonly byte[] KingSideSourceSquare = [56, 0];
         public static readonly byte[] QueenSideSourceSquare = [63, 7];
         public static readonly byte[] KingSideDestinationSquare = [58, 2];
         public static readonly byte[] QueenSideDestinationSquare = [60, 4];
 
-        public Rook(BitBoardContext bitBoardContext,
-            MovesContainer movesContainer,
+        public Rook(BoardContext bitBoardContext,
             IList<Move> movesList,
-            IPiecesListService piecesListService)
-            : base(bitBoardContext, movesContainer, movesList, piecesListService)
+            IPiecesListService piecesListService,
+            ZorbistHash zorbistHash)
+            : base(bitBoardContext, movesList, piecesListService, zorbistHash)
         {
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GenerateMoves(MoveGenerationTypeEnum generationType)
         {
-            GenerateMoves(_movesContainer.RookMagics, generationType, SliderTypeEnum.Rook);
+            GenerateMoves(MovesContainer.RookMagics, generationType, SliderTypeEnum.Rook);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -40,13 +41,13 @@ namespace Queene.Core.MovesGenerating.Pieces
                 {
                     move.KingSideCastleBreak = true;
                     _bitBoardContext.SetKingSideCastleAllowance(_bitBoardContext.Player.Current, false);
-                    _bitBoardContext.Hash ^= ZorbistHash.KingSideCastle[_bitBoardContext.Player.Current];
+                    _bitBoardContext.Hash ^= _zorbistHash.KingSideCastle[_bitBoardContext.Player.Current];
                 }
                 else if (_bitBoardContext.CanCastleQueenSide[_bitBoardContext.Player.Current] && move.From == QueenSideSourceSquare[_bitBoardContext.Player.Current])
                 {
                     move.QueenSideCastleBreak = true;
                     _bitBoardContext.SetQueenSideCastleAllowance(_bitBoardContext.Player.Current, false);
-                    _bitBoardContext.Hash ^= ZorbistHash.KingSideCastle[_bitBoardContext.Player.Current];
+                    _bitBoardContext.Hash ^= _zorbistHash.KingSideCastle[_bitBoardContext.Player.Current];
                 }
             }
 
@@ -59,23 +60,23 @@ namespace Queene.Core.MovesGenerating.Pieces
             if (move.KingSideCastleBreak)
             {
                 _bitBoardContext.SetKingSideCastleAllowance(_bitBoardContext.Player.Current, true);
-                _bitBoardContext.Hash ^= ZorbistHash.KingSideCastle[_bitBoardContext.Player.Current];
+                _bitBoardContext.Hash ^= _zorbistHash.KingSideCastle[_bitBoardContext.Player.Current];
             }
             else if (move.QueenSideCastleBreak)
             {
                 _bitBoardContext.SetQueenSideCastleAllowance(_bitBoardContext.Player.Current, true);
-                _bitBoardContext.Hash ^= ZorbistHash.KingSideCastle[_bitBoardContext.Player.Current];
+                _bitBoardContext.Hash ^= _zorbistHash.KingSideCastle[_bitBoardContext.Player.Current];
             }
 
             base.UnmakeMove(move);
         }
 
-        public static bool IsRookOnKingSideInitialPosition(BitBoardContext bitBoardContext)
+        public static bool IsRookOnKingSideInitialPosition(BoardContext bitBoardContext)
         {
             return BitwiseHelper.IsSet(bitBoardContext.Pieces[bitBoardContext.Player.Current][(byte)PieceTypeEnum.Rook], KingSideSourceSquare[bitBoardContext.Player.Current]);
         }
 
-        public static bool IsRookOnQueenSideInitialPosition(BitBoardContext bitBoardContext)
+        public static bool IsRookOnQueenSideInitialPosition(BoardContext bitBoardContext)
         {
             return BitwiseHelper.IsSet(bitBoardContext.Pieces[bitBoardContext.Player.Current][(byte)PieceTypeEnum.Rook], QueenSideSourceSquare[bitBoardContext.Player.Current]);
         }

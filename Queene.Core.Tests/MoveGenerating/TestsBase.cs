@@ -3,7 +3,9 @@ using Queene.Core.Converters;
 using Queene.Core.Magics;
 using Queene.Core.Models;
 using Queene.Core.MovesGenerating;
+using Queene.Core.MovesGenerating.Hashing;
 using Queene.Core.MovesGenerating.PiecesList;
+using Queene.Core.Utils;
 using QueeneEngine.Engine.Magics;
 
 namespace Queene.Core.Tests.MoveGenerating
@@ -15,19 +17,24 @@ namespace Queene.Core.Tests.MoveGenerating
         protected readonly IBitBoardContextConverter _bitBoardContextConverter;
         protected readonly IPiecesListService _piecesListService;
         protected readonly IList<Move> _movesList = new MovesList();
-        protected readonly MovesContainer _movesContainer;
         protected readonly BitBoard _bitBoard;
         protected readonly IFixture _fixture;
+        protected readonly ZorbistHash _zorbistHash;
 
         public TestsBase()
         {
             _fixture = new Fixture();
             _magicsBinaryPersister = new MagicsBinaryPersisterService();
-            _movesContainer = new MovesContainer(_magicsBinaryPersister);
+            SquaresBetweenMasksGeneratorHelper.GenerateMasksBeetwenSquares();
+            MovesContainer.InitMovesMasks(_magicsBinaryPersister);
+            PerftTranspositionTable.Init();
             _boardStateConverter = new BoardStateToFenConverter();
             _bitBoardContextConverter = new BitBoardContextConverter(_boardStateConverter);
 
-            _bitBoard = new BitBoard(_movesContainer, _bitBoardContextConverter);
+            _zorbistHash = new ZorbistHash();
+            _zorbistHash.Init();
+
+            _bitBoard = new BitBoard(_bitBoardContextConverter, _zorbistHash);
             _piecesListService = new PiecesListService(_bitBoard.Context);
         }
     }

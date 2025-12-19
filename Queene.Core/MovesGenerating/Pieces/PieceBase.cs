@@ -3,7 +3,6 @@ using Queene.Core.Enums;
 using Queene.Core.Models;
 using Queene.Core.MovesGenerating.Hashing;
 using Queene.Core.MovesGenerating.PiecesList;
-using QueeneEngine.Engine.Magics;
 using QueeneEngine.Helpers.Bitwise;
 using System.Runtime.CompilerServices;
 
@@ -13,25 +12,24 @@ namespace Queene.Core.MovesGenerating.Pieces
     {
         public abstract PieceTypeEnum PieceType { get; }
 
-        protected readonly BitBoardContext _bitBoardContext;
-        protected readonly MovesContainer _movesContainer;
+        protected readonly BoardContext _bitBoardContext;
         protected readonly IList<Move> _movesList;
+        protected readonly ZorbistHash _zorbistHash;
         private readonly IPiecesListService _piecesListService;
 
         protected ulong _moves;
         protected ulong _captures;
         protected byte _square;
 
-        public PieceBase(BitBoardContext bitBoardContext,
-            MovesContainer movesContainer,
+        public PieceBase(BoardContext bitBoardContext,
             IList<Move> movesList,
-            IPiecesListService piecesListService)
+            IPiecesListService piecesListService,
+            ZorbistHash zorbistHash)
         {
             _bitBoardContext = bitBoardContext;
-            _movesContainer = movesContainer;
             _movesList = movesList;
             _piecesListService = piecesListService;
-
+            _zorbistHash = zorbistHash;
             InitPiecesList();
         }
 
@@ -46,18 +44,18 @@ namespace Queene.Core.MovesGenerating.Pieces
         {
             //remove piece from source square
             _bitBoardContext.Pieces[_bitBoardContext.Player.Current][(byte)PieceType] ^= Powers.powersOfTwo[move.From];
-            _bitBoardContext.Hash ^= ZorbistHash.Pieces[(byte)PieceType][move.From];
+            _bitBoardContext.Hash ^= _zorbistHash.Pieces[(byte)PieceType][move.From];
 
             //set piece at destination square
             if (move.MoveType == MoveTypeEnum.Promotion) //set promoted piece
             {
                 _bitBoardContext.Pieces[_bitBoardContext.Player.Current][(byte)move.PromotedTo] |= Powers.powersOfTwo[move.To];
-                _bitBoardContext.Hash ^= ZorbistHash.Pieces[(byte)move.PromotedTo][move.To];
+                _bitBoardContext.Hash ^= _zorbistHash.Pieces[(byte)move.PromotedTo][move.To];
             }
             else
             {
                 _bitBoardContext.Pieces[_bitBoardContext.Player.Current][(byte)PieceType] |= Powers.powersOfTwo[move.To];
-                _bitBoardContext.Hash ^= ZorbistHash.Pieces[(byte)PieceType][move.To];
+                _bitBoardContext.Hash ^= _zorbistHash.Pieces[(byte)PieceType][move.To];
             }
 
             if (move.IsPawnDoubleMove())
@@ -71,7 +69,7 @@ namespace Queene.Core.MovesGenerating.Pieces
                 _bitBoardContext.Pieces[_bitBoardContext.Player.Oponnent][(byte)move.Captured.Value] ^= Powers.powersOfTwo[move.To];
                 _bitBoardContext.Pieces[_bitBoardContext.Player.Oponnent][(byte)PieceTypeEnum.All] ^= Powers.powersOfTwo[move.To];
 
-                _bitBoardContext.Hash ^= ZorbistHash.Pieces[(byte)move.Captured.Value][move.To];
+                _bitBoardContext.Hash ^= _zorbistHash.Pieces[(byte)move.Captured.Value][move.To];
             }
 
             //update all pieces mask
@@ -91,18 +89,18 @@ namespace Queene.Core.MovesGenerating.Pieces
 
             //restore piece at source square
             _bitBoardContext.Pieces[_bitBoardContext.Player.Current][(byte)PieceType] |= Powers.powersOfTwo[move.From];
-            _bitBoardContext.Hash ^= ZorbistHash.Pieces[(byte)PieceType][move.From];
+            _bitBoardContext.Hash ^= _zorbistHash.Pieces[(byte)PieceType][move.From];
 
             if (move.MoveType == MoveTypeEnum.Promotion) //remove promoted piece
             {
                 _bitBoardContext.Pieces[_bitBoardContext.Player.Current][(byte)move.PromotedTo] ^= Powers.powersOfTwo[move.To];
-                _bitBoardContext.Hash ^= ZorbistHash.Pieces[(byte)move.PromotedTo][move.To];
+                _bitBoardContext.Hash ^= _zorbistHash.Pieces[(byte)move.PromotedTo][move.To];
             }
             //remove piece at destination square
             else
             {
                 _bitBoardContext.Pieces[_bitBoardContext.Player.Current][(byte)PieceType] ^= Powers.powersOfTwo[move.To];
-                _bitBoardContext.Hash ^= ZorbistHash.Pieces[(byte)PieceType][move.To];
+                _bitBoardContext.Hash ^= _zorbistHash.Pieces[(byte)PieceType][move.To];
             }
 
             //restore captured piece
@@ -111,7 +109,7 @@ namespace Queene.Core.MovesGenerating.Pieces
                 _bitBoardContext.Pieces[_bitBoardContext.Player.Oponnent][(byte)move.Captured.Value] |= Powers.powersOfTwo[move.To];
                 _bitBoardContext.Pieces[_bitBoardContext.Player.Oponnent][(byte)PieceTypeEnum.All] |= Powers.powersOfTwo[move.To];
 
-                _bitBoardContext.Hash ^= ZorbistHash.Pieces[(byte)move.Captured.Value][move.To];
+                _bitBoardContext.Hash ^= _zorbistHash.Pieces[(byte)move.Captured.Value][move.To];
             }
 
             //update all pieces mask

@@ -10,14 +10,14 @@ namespace Queene.Core.Converters
     public class BitBoardContextConverter : IBitBoardContextConverter
 	{
 		private readonly IBoardStateConverter _boardStateConverter;
-		private BitBoardContext _bitBoardContext;
+		private BoardContext _bitBoardContext;
 
 		public BitBoardContextConverter(IBoardStateConverter boardStateConverter)
         {
 			_boardStateConverter = boardStateConverter;
 		}
 
-		public BoardState Convert(BitBoardContext bitBoardContext)
+		public BoardState Convert(BoardContext bitBoardContext)
 		{
 			_bitBoardContext = bitBoardContext;
 

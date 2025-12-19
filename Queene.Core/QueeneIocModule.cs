@@ -1,8 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Queene.Core.Converters;
 using Queene.Core.Magics;
-using Queene.Core.MovesGenerating;
-using QueeneEngine.Engine.Magics;
+using Queene.Core.MovesGenerating.Hashing;
 
 namespace Queene.Core
 {
@@ -10,13 +9,11 @@ namespace Queene.Core
     {
         public static void RegisterServices(IServiceCollection serviceCollection)
         {
-            serviceCollection.AddTransient<IMagicsBinaryPersisterService, MagicsBinaryPersisterService>();
+            serviceCollection.AddSingleton<IMagicsBinaryPersisterService, MagicsBinaryPersisterService>();
             serviceCollection.AddSingleton<IBoardStateConverter, BoardStateToFenConverter>();
             serviceCollection.AddSingleton<IBitBoardContextConverter, BitBoardContextConverter>();
-
-            serviceCollection.AddSingleton<BitBoardContext>();
-            serviceCollection.AddSingleton<MovesContainer>();
-            serviceCollection.AddSingleton<Board>();
+            serviceCollection.AddSingleton<ZorbistHash>();
+            serviceCollection.AddSingleton<IQueeneGame, Game>();
         }
     }
 }

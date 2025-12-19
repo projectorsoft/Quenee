@@ -11,12 +11,12 @@ namespace Queene.Core.MovesGenerating.Pieces
 {
     public class King : PieceBase, IPiece
     {
+        public override PieceTypeEnum PieceType => PieceTypeEnum.King;
+        public const int Value = 200;
+
         public byte Square => _bitBoardContext.PieceTypeList[_bitBoardContext.Player.Current][(byte)PieceTypeEnum.King].GetAtIndex(0);
 
         public static readonly byte[] InitialSquare = [59, 3];
-
-        public override PieceTypeEnum PieceType => PieceTypeEnum.King;
-
         //Contains valid square number for castling as a mask
         private readonly ulong[] _castleKingSideDestinationSquareMasks = [0x200000000000000, 0x2];
         private readonly ulong[] _castleQueenSideDestinationSquareMasks = [0x2000000000000000, 0x20];
@@ -29,11 +29,11 @@ namespace Queene.Core.MovesGenerating.Pieces
 
         private readonly byte[] _movesCounter = new byte[2];
 
-        public King(BitBoardContext bitBoardContext,
-            MovesContainer movesContainer,
+        public King(BoardContext bitBoardContext,
             IList<Move> movesList,
-            IPiecesListService piecesListService)
-            : base(bitBoardContext, movesContainer, movesList, piecesListService)
+            IPiecesListService piecesListService,
+            ZorbistHash zorbistHash)
+            : base(bitBoardContext, movesList, piecesListService, zorbistHash)
         {
         }
 
@@ -46,10 +46,10 @@ namespace Queene.Core.MovesGenerating.Pieces
             {
                 GenerateCastlings(_bitBoardContext.Player.Current, square);
 
-                _moves = _movesContainer.KingMoves[square] & _bitBoardContext.EmptySquares;
+                _moves = MovesContainer.KingMoves[square] & _bitBoardContext.EmptySquares;
             }
 
-            _captures = _movesContainer.KingMoves[square] & _bitBoardContext.Pieces[_bitBoardContext.Player.Oponnent][(byte)PieceTypeEnum.All];
+            _captures = MovesContainer.KingMoves[square] & _bitBoardContext.Pieces[_bitBoardContext.Player.Oponnent][(byte)PieceTypeEnum.All];
 
             if (_bitBoardContext.Attackers != 0)
                 _moves &= ~_bitBoardContext.CheckedSquares;
@@ -75,8 +75,8 @@ namespace Queene.Core.MovesGenerating.Pieces
             else if (_movesCounter[_bitBoardContext.Player.Current] == 0)
             {
                 _bitBoardContext.SetCastleAllowance(_bitBoardContext.Player.Current, false);
-                _bitBoardContext.Hash ^= ZorbistHash.KingSideCastle[_bitBoardContext.Player.Current];
-                _bitBoardContext.Hash ^= ZorbistHash.QueenSideCastle[_bitBoardContext.Player.Current];
+                _bitBoardContext.Hash ^= _zorbistHash.KingSideCastle[_bitBoardContext.Player.Current];
+                _bitBoardContext.Hash ^= _zorbistHash.QueenSideCastle[_bitBoardContext.Player.Current];
             }
 
             //standard not castling move breaks castling ability
@@ -111,8 +111,8 @@ namespace Queene.Core.MovesGenerating.Pieces
             else if (_movesCounter[_bitBoardContext.Player.Current] == 0) //TODO: case when position read from FEN and king is already somewhere on the board
             {
                 _bitBoardContext.SetCastleAllowance(_bitBoardContext.Player.Current, true);
-                _bitBoardContext.Hash ^= ZorbistHash.KingSideCastle[_bitBoardContext.Player.Current];
-                _bitBoardContext.Hash ^= ZorbistHash.QueenSideCastle[_bitBoardContext.Player.Current];
+                _bitBoardContext.Hash ^= _zorbistHash.KingSideCastle[_bitBoardContext.Player.Current];
+                _bitBoardContext.Hash ^= _zorbistHash.QueenSideCastle[_bitBoardContext.Player.Current];
             }
 
             if (move.CastleBreak)
@@ -131,7 +131,7 @@ namespace Queene.Core.MovesGenerating.Pieces
                 _bitBoardContext.Pieces[_bitBoardContext.Player.Current][(byte)PieceTypeEnum.All] ^= Powers.powersOfTwo[Rook.KingSideSourceSquare[_bitBoardContext.Player.Current]];
                 _bitBoardContext.Pieces[_bitBoardContext.Player.Current][(byte)PieceTypeEnum.All] ^= Powers.powersOfTwo[Rook.KingSideDestinationSquare[_bitBoardContext.Player.Current]];
 
-                _bitBoardContext.Hash ^= ZorbistHash.KingSideCastle[_bitBoardContext.Player.Current];
+                _bitBoardContext.Hash ^= _zorbistHash.KingSideCastle[_bitBoardContext.Player.Current];
             }
             else if (move.IsCastleQueenSideMove)
             {
@@ -140,7 +140,7 @@ namespace Queene.Core.MovesGenerating.Pieces
                 _bitBoardContext.Pieces[_bitBoardContext.Player.Current][(byte)PieceTypeEnum.All] ^= Powers.powersOfTwo[Rook.QueenSideSourceSquare[_bitBoardContext.Player.Current]];
                 _bitBoardContext.Pieces[_bitBoardContext.Player.Current][(byte)PieceTypeEnum.All] ^= Powers.powersOfTwo[Rook.QueenSideDestinationSquare[_bitBoardContext.Player.Current]];
 
-                _bitBoardContext.Hash ^= ZorbistHash.QueenSideCastle[_bitBoardContext.Player.Current];
+                _bitBoardContext.Hash ^= _zorbistHash.QueenSideCastle[_bitBoardContext.Player.Current];
             }
         }
 
@@ -179,7 +179,7 @@ namespace Queene.Core.MovesGenerating.Pieces
             {
                 _square = BitwiseHelper.FastBitScanForward(moves);
 
-                if (!BitBoard.IsSquareAttacked(_bitBoardContext, _movesContainer, _bitBoardContext.Player, _square))
+                if (!BitBoard.IsSquareAttacked(_bitBoardContext, _bitBoardContext.Player, _square))
                     _movesList.Add(new Move(fromSquare, _square, MoveTypeEnum.Move, PieceTypeEnum.Knight));
 
                 moves ^= Powers.powersOfTwo[_square];
@@ -198,12 +198,12 @@ namespace Queene.Core.MovesGenerating.Pieces
             //if (_bitBoardContext.Attackers > 0)
             //    return true;
 
-            if (BitBoard.IsSquareAttacked(_bitBoardContext, _movesContainer, _bitBoardContext.Player, Square))
+            if (BitBoard.IsSquareAttacked(_bitBoardContext, _bitBoardContext.Player, Square))
                     return true;
 
             for (byte i = 0; i < castlingSquares.Length; i++)
             {
-                if (BitBoard.IsSquareAttacked(_bitBoardContext, _movesContainer, _bitBoardContext.Player, castlingSquares[i]))
+                if (BitBoard.IsSquareAttacked(_bitBoardContext, _bitBoardContext.Player, castlingSquares[i]))
                     return true;
             }
 

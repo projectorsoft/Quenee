@@ -22,7 +22,7 @@ namespace Queene.Core.Tests.MakeUnmakeMove
 
             _bitBoard.SetupBoard(boardState);
 
-            var pawn = new Pawn(_bitBoard.Context, _movesContainer, _movesList, _piecesListService);
+            var pawn = new Pawn(_bitBoard.Context, _movesList, _piecesListService, _zorbistHash);
 
             // Act
             pawn.GenerateMoves(MoveGenerationTypeEnum.All);
@@ -54,7 +54,7 @@ namespace Queene.Core.Tests.MakeUnmakeMove
 
             _bitBoard.SetupBoard(boardState);
 
-            var pawn = new Pawn(_bitBoard.Context, _movesContainer, _movesList, _piecesListService);
+            var pawn = new Pawn(_bitBoard.Context, _movesList, _piecesListService, _zorbistHash);
 
             // Act
             pawn.GenerateMoves(MoveGenerationTypeEnum.All);
@@ -87,7 +87,7 @@ namespace Queene.Core.Tests.MakeUnmakeMove
 
             _bitBoard.SetupBoard(boardState);
 
-            var pawn = new Pawn(_bitBoard.Context, _movesContainer, _movesList, _piecesListService);
+            var pawn = new Pawn(_bitBoard.Context, _movesList, _piecesListService, _zorbistHash);
 
             // Act
             pawn.GenerateMoves(MoveGenerationTypeEnum.All);
@@ -121,7 +121,7 @@ namespace Queene.Core.Tests.MakeUnmakeMove
 
             _bitBoard.SetupBoard(boardState);
 
-            var pawn = new Pawn(_bitBoard.Context, _movesContainer, _movesList, _piecesListService);
+            var pawn = new Pawn(_bitBoard.Context, _movesList, _piecesListService, _zorbistHash);
 
             // Act
             pawn.GenerateMoves(MoveGenerationTypeEnum.All);
@@ -155,7 +155,7 @@ namespace Queene.Core.Tests.MakeUnmakeMove
 
             _bitBoard.SetupBoard(boardState);
 
-            var pawn = new Pawn(_bitBoard.Context, _movesContainer, _movesList, _piecesListService);
+            var pawn = new Pawn(_bitBoard.Context, _movesList, _piecesListService, _zorbistHash);
 
             // Act
             pawn.GenerateMoves(MoveGenerationTypeEnum.All);
@@ -188,7 +188,7 @@ namespace Queene.Core.Tests.MakeUnmakeMove
 
             _bitBoard.SetupBoard(boardState);
 
-            var pawn = new Pawn(_bitBoard.Context, _movesContainer, _movesList, _piecesListService);
+            var pawn = new Pawn(_bitBoard.Context, _movesList, _piecesListService, _zorbistHash);
 
             // Act
             pawn.GenerateMoves(MoveGenerationTypeEnum.All);
@@ -222,7 +222,7 @@ namespace Queene.Core.Tests.MakeUnmakeMove
 
             _bitBoard.SetupBoard(boardState);
 
-            var pawn = new Pawn(_bitBoard.Context, _movesContainer, _movesList, _piecesListService);
+            var pawn = new Pawn(_bitBoard.Context, _movesList, _piecesListService, _zorbistHash);
 
             // Act
             pawn.GenerateMoves(MoveGenerationTypeEnum.OnlyCaptures);
@@ -263,7 +263,7 @@ namespace Queene.Core.Tests.MakeUnmakeMove
 
             _bitBoard.SetupBoard(boardState);
 
-            var pawn = new Pawn(_bitBoard.Context, _movesContainer, _movesList, _piecesListService);
+            var pawn = new Pawn(_bitBoard.Context, _movesList, _piecesListService, _zorbistHash);
 
             // Act
             pawn.GenerateMoves(MoveGenerationTypeEnum.OnlyCaptures);
@@ -303,7 +303,7 @@ namespace Queene.Core.Tests.MakeUnmakeMove
 
             _bitBoard.SetupBoard(boardState);
 
-            var pawn = new Pawn(_bitBoard.Context, _movesContainer, _movesList, _piecesListService);
+            var pawn = new Pawn(_bitBoard.Context, _movesList, _piecesListService, _zorbistHash);
 
             // Act
             pawn.GenerateMoves(MoveGenerationTypeEnum.OnlyCaptures);
@@ -338,7 +338,7 @@ namespace Queene.Core.Tests.MakeUnmakeMove
 
             _bitBoard.SetupBoard(boardState);
 
-            var pawn = new Pawn(_bitBoard.Context, _movesContainer, _movesList, _piecesListService);
+            var pawn = new Pawn(_bitBoard.Context, _movesList, _piecesListService, _zorbistHash);
 
             // Act
             pawn.GenerateMoves(MoveGenerationTypeEnum.OnlyCaptures);

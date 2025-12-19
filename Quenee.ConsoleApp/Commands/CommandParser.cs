@@ -23,7 +23,7 @@ namespace Quenee.ConsoleApp.Commands
             try
             {
                 if (string.IsNullOrWhiteSpace(commandLine))
-                    throw new CommandParserException(new ArgumentException("Invalid command provided"));
+                    return;
 
                 var args = SplitCommand(commandLine.Trim(' '));
 

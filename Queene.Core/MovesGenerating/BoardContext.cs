@@ -10,7 +10,7 @@ using System.Runtime.CompilerServices;
 
 namespace Queene.Core.MovesGenerating
 {
-    public class BitBoardContext
+    public class BoardContext
 	{
 		public ulong[][] Pieces { get; }
 		public ulong EmptySquares { get; set; }
@@ -38,7 +38,7 @@ namespace Queene.Core.MovesGenerating
 
 		private readonly IBitBoardContextConverter _bitBoardContextConverter;
 
-		public BitBoardContext(IBitBoardContextConverter bitBoardContextConverter)
+		public BoardContext(IBitBoardContextConverter bitBoardContextConverter)
 		{
 			_bitBoardContextConverter = bitBoardContextConverter;
 
@@ -182,5 +182,5 @@ namespace Queene.Core.MovesGenerating
 
 			return boardState.ToString();
 		}
-	}
+    }
 }

@@ -1,6 +1,7 @@
 ﻿using Queene.Core.Consts;
 using Queene.Core.Enums;
 using Queene.Core.Models;
+using Queene.Core.MovesGenerating.Hashing;
 using Queene.Core.MovesGenerating.PiecesList;
 using QueeneEngine.Engine.Magics;
 using System.Runtime.CompilerServices;
@@ -10,12 +11,13 @@ namespace Queene.Core.MovesGenerating.Pieces
     public class Knight : PieceBase, IPiece
     {
         public override PieceTypeEnum PieceType => PieceTypeEnum.Knight;
+        public const int Value = 300;
 
-        public Knight(BitBoardContext bitBoardContext,
-            MovesContainer movesContainer,
+        public Knight(BoardContext bitBoardContext,
             IList<Move> movesList,
-            IPiecesListService piecesListService)
-            : base(bitBoardContext, movesContainer, movesList, piecesListService)
+            IPiecesListService piecesListService,
+            ZorbistHash zorbistHash)
+            : base(bitBoardContext, movesList, piecesListService, zorbistHash)
         {
         }
 
@@ -27,9 +29,9 @@ namespace Queene.Core.MovesGenerating.Pieces
                 _square = _bitBoardContext.PieceTypeList[_bitBoardContext.Player.Current][(byte)PieceType].GetAtIndex(i);
 
                 if (generationType == MoveGenerationTypeEnum.All)
-                    _moves = _movesContainer.KnightMoves[_square] & _bitBoardContext.EmptySquares;
+                    _moves = MovesContainer.KnightMoves[_square] & _bitBoardContext.EmptySquares;
 
-                _captures = _movesContainer.KnightMoves[_square] & _bitBoardContext.Pieces[_bitBoardContext.Player.Oponnent][(byte)PieceTypeEnum.All];
+                _captures = MovesContainer.KnightMoves[_square] & _bitBoardContext.Pieces[_bitBoardContext.Player.Oponnent][(byte)PieceTypeEnum.All];
 
                 if (_bitBoardContext.Attackers != 0)
                 {

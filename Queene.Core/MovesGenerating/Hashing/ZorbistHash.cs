@@ -4,28 +4,22 @@ using System;
 
 namespace Queene.Core.MovesGenerating.Hashing
 {
-    public static class ZorbistHash
+    public class ZorbistHash
     {
-        public static ulong[][] Pieces { get; private set; } = []; //[pieceType][square]
-        public static ulong[][] EnPassante { get; private set; } = []; //[player][square]
-        public static ulong[] Player { get; private set; } = [];
-        public static ulong[] KingSideCastle { get; private set; } = [];
-        public static ulong[] QueenSideCastle { get; private set; } = [];
+        public ulong[][] Pieces { get; private set; } = []; //[pieceType][square]
+        public ulong[][] EnPassante { get; private set; } = []; //[player][square]
+        public ulong[] Player { get; private set; } = [];
+        public ulong[] KingSideCastle { get; private set; } = [];
+        public ulong[] QueenSideCastle { get; private set; } = [];
 
         private static readonly Random _rnd = new();
 
-        private static bool _isInstantiated;
-
-        static ZorbistHash()
+        public ZorbistHash()
         {
-            if (!_isInstantiated)
-            {
-                _isInstantiated = true;
-                Init();
-            }
+            Init();
         }
 
-        public static void Init()
+        public void Init()
         {
             Pieces = new ulong[6][];
 
@@ -60,7 +54,7 @@ namespace Queene.Core.MovesGenerating.Hashing
                 Player[(byte)player] = _rnd.NextULong();
         }
 
-        public static ulong CreateHash(BitBoardContext context)
+        public ulong CreateHash(BoardContext context)
         {
             ulong hash = 0;
 

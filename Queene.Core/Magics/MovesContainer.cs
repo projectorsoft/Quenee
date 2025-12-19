@@ -4,32 +4,24 @@ using QueeneEngine.Engine.Magics.Generators;
 
 namespace QueeneEngine.Engine.Magics
 {
-    public class MovesContainer
+    public static class MovesContainer
     {
-        private IMagicsBinaryPersisterService _magicsBinaryPersister;
+        public static MagicResult[] BishopMagics { get; private set; }
+        public static MagicResult[] RookMagics { get; private set; }
+        public static ulong[] KingMoves { get; private set; }
+        public static ulong[] KnightMoves { get; private set; }
+        public static ulong[] PawnWhiteMoves { get; private set; }
+        public static ulong[] PawnWhiteCaptures { get; private set; }
+        public static ulong[] PawnBlackMoves { get; private set; }
+        public static ulong[] PawnBlackCaptures { get; private set; }
 
-        public  MagicResult[] BishopMagics { get; private set; }
-        public MagicResult[] RookMagics { get; private set; }
-        public ulong[] KingMoves { get; private set; }
-        public ulong[] KnightMoves { get; private set; }
-        public ulong[] PawnWhiteMoves { get; private set; }
-        public ulong[] PawnWhiteCaptures { get; private set; }
-        public ulong[] PawnBlackMoves { get; private set; }
-        public ulong[] PawnBlackCaptures { get; private set; }
-
-        public MovesContainer(IMagicsBinaryPersisterService magicsBinaryPersister)
-        {
-            _magicsBinaryPersister = magicsBinaryPersister;
-            InitMovesMasks();
-        }
-
-        private void InitMovesMasks()
+        public static void InitMovesMasks(IMagicsBinaryPersisterService magicsBinaryPersister)
         {
             if (BishopMagics == null)
-                BishopMagics = _magicsBinaryPersister.LoadMagics(SliderTypeEnum.Bishop);
+                BishopMagics = magicsBinaryPersister.LoadMagics(SliderTypeEnum.Bishop);
 
             if (RookMagics == null)
-                RookMagics = _magicsBinaryPersister.LoadMagics(SliderTypeEnum.Rook);
+                RookMagics = magicsBinaryPersister.LoadMagics(SliderTypeEnum.Rook);
 
             if (KingMoves == null)
                 KingMoves = KingMovesGenerator.GeneratetMoves();

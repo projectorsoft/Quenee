@@ -33,7 +33,7 @@ namespace Queene.Core.Models
         public bool IsCastleKingSideMove => MoveType == MoveTypeEnum.Castle && To < From;
         public bool IsCastleQueenSideMove => MoveType == MoveTypeEnum.Castle && To > From;
 
-        public ExtendedMove(Move move, BitBoardContext context)
+        public ExtendedMove(Move move, BoardContext context)
         {
             Move = move;
             From = move.GetFromSquare();

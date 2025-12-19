@@ -25,7 +25,7 @@ namespace Queene.Core.Tests.MoveGenerating.Pieces
 
             _bitBoard.SetupBoard(boardState);
 
-            var knight = new Knight(_bitBoard.Context, _movesContainer, _movesList, _piecesListService);
+            var knight = new Knight(_bitBoard.Context, _movesList, _piecesListService, _zorbistHash);
 
             // Act
             knight.GenerateMoves(MoveGenerationTypeEnum.All);
@@ -45,7 +45,7 @@ namespace Queene.Core.Tests.MoveGenerating.Pieces
 
             _bitBoard.SetupBoard(boardState);
 
-            var knight = new Knight(_bitBoard.Context, _movesContainer, _movesList, _piecesListService);
+            var knight = new Knight(_bitBoard.Context, _movesList, _piecesListService, _zorbistHash);
 
             // Act
             knight.GenerateMoves(MoveGenerationTypeEnum.OnlyCaptures);
@@ -64,7 +64,7 @@ namespace Queene.Core.Tests.MoveGenerating.Pieces
 
             _bitBoard.SetupBoard(boardState);
 
-            var knight = new Knight(_bitBoard.Context, _movesContainer, _movesList, _piecesListService);
+            var knight = new Knight(_bitBoard.Context, _movesList, _piecesListService, _zorbistHash);
 
             // Act
             knight.GenerateMoves(MoveGenerationTypeEnum.All);
@@ -82,7 +82,7 @@ namespace Queene.Core.Tests.MoveGenerating.Pieces
 
             _bitBoard.SetupBoard(boardState);
 
-            var knight = new Knight(_bitBoard.Context, _movesContainer, _movesList, _piecesListService);
+            var knight = new Knight(_bitBoard.Context, _movesList, _piecesListService, _zorbistHash);
 
             // Act
             knight.GenerateMoves(MoveGenerationTypeEnum.OnlyCaptures);
@@ -101,7 +101,7 @@ namespace Queene.Core.Tests.MoveGenerating.Pieces
 
             _bitBoard.SetupBoard(boardState);
 
-            var knight = new Knight(_bitBoard.Context, _movesContainer, _movesList, _piecesListService);
+            var knight = new Knight(_bitBoard.Context, _movesList, _piecesListService, _zorbistHash);
 
             // Act
             knight.GenerateMoves(MoveGenerationTypeEnum.All);
@@ -119,7 +119,7 @@ namespace Queene.Core.Tests.MoveGenerating.Pieces
 
             _bitBoard.SetupBoard(boardState);
 
-            var knight = new Knight(_bitBoard.Context, _movesContainer, _movesList, _piecesListService);
+            var knight = new Knight(_bitBoard.Context, _movesList, _piecesListService, _zorbistHash);
 
             // Act
             knight.GenerateMoves(MoveGenerationTypeEnum.OnlyCaptures);

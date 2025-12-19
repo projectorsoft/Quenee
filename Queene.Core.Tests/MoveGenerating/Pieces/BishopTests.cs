@@ -3,6 +3,7 @@ using Queene.Core.Enums;
 using Queene.Core.Fen;
 using Queene.Core.Models;
 using Queene.Core.MovesGenerating.Pieces;
+using Queene.Core.MovesGenerating.PiecesList;
 using Queene.Core.Tests.MoveGenerating.Pieces.TestData;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,7 +26,8 @@ namespace Queene.Core.Tests.MoveGenerating.Pieces
 
             _bitBoard.SetupBoard(boardState);
 
-            var bishop = new Bishop(_bitBoard.Context, _movesContainer, _movesList, _piecesListService);
+            var piecesListService = new PiecesListService(_bitBoard.Context);
+            var bishop = new Bishop(_bitBoard.Context, _movesList, piecesListService, _zorbistHash);
 
             // Act
             bishop.GenerateMoves(MoveGenerationTypeEnum.All);
@@ -44,7 +46,8 @@ namespace Queene.Core.Tests.MoveGenerating.Pieces
 
             _bitBoard.SetupBoard(boardState);
 
-            var bishop = new Bishop(_bitBoard.Context, _movesContainer, _movesList, _piecesListService);
+            var piecesListService = new PiecesListService(_bitBoard.Context);
+            var bishop = new Bishop(_bitBoard.Context, _movesList, piecesListService, _zorbistHash);
 
             // Act
             bishop.GenerateMoves(MoveGenerationTypeEnum.OnlyCaptures);
@@ -63,7 +66,8 @@ namespace Queene.Core.Tests.MoveGenerating.Pieces
 
             _bitBoard.SetupBoard(boardState);
 
-            var bishop = new Bishop(_bitBoard.Context, _movesContainer, _movesList, _piecesListService);
+            var piecesListService = new PiecesListService(_bitBoard.Context);
+            var bishop = new Bishop(_bitBoard.Context, _movesList, piecesListService, _zorbistHash);
 
             // Act
             bishop.GenerateMoves(MoveGenerationTypeEnum.All);
@@ -82,7 +86,8 @@ namespace Queene.Core.Tests.MoveGenerating.Pieces
 
             _bitBoard.SetupBoard(boardState);
 
-            var bishop = new Bishop(_bitBoard.Context, _movesContainer, _movesList, _piecesListService);
+            var piecesListService = new PiecesListService(_bitBoard.Context);
+            var bishop = new Bishop(_bitBoard.Context, _movesList, piecesListService, _zorbistHash);
 
             // Act
             bishop.GenerateMoves(MoveGenerationTypeEnum.OnlyCaptures);

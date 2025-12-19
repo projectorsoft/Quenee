@@ -6,20 +6,20 @@ namespace Quenee.ConsoleApp.Commands.SetPositionCommand
 {
     public class SetPositionCommand : ICommand<SetPositionCommandRequest, SetPositionCommandResponse>
     {
-        private readonly Board _board;
+        private readonly IQueeneGame _game;
 
         public string Name => "position";
 
         public List<CommandParameterBase> Params => [ new CommandParameter<string>(nameof(SetPositionCommandRequest.Fen), 0) ];
 
-        public SetPositionCommand(Board board)
+        public SetPositionCommand(IQueeneGame game)
         {
-            _board = board;
+            _game = game;
         }
 
         public SetPositionCommandResponse Execute(SetPositionCommandRequest request)
         {
-            _board.NewGame(request.Fen);
+            _game.SetupPosition(request.Fen);
 
             return new SetPositionCommandResponse();
         }

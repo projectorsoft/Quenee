@@ -7,12 +7,12 @@ namespace Queene.Core.MovesGenerating.PiecesList
 {
     public class PiecesListService : IPiecesListService
     {
-        private readonly BitBoardContext _bitBoardContext;
+        private readonly BoardContext _bitBoardContext;
 
         private PieceIndex _pieceIndex;
         private byte _square;
 
-        public PiecesListService(BitBoardContext bitBoardContext)
+        public PiecesListService(BoardContext bitBoardContext)
         {
             _bitBoardContext = bitBoardContext;
         }

@@ -1,6 +1,8 @@
 ﻿using FluentAssertions;
 using Queene.Core.Fen;
+using Queene.Core.MovesGenerating;
 using Queene.Core.MovesGenerating.Pieces;
+using Queene.Core.MovesGenerating.PiecesList;
 using Queene.Core.Utils;
 using Xunit;
 
@@ -30,16 +32,19 @@ namespace Queene.Core.Tests.MoveGenerating
             // Arrange
             SquaresBetweenMasksGeneratorHelper.GenerateMasksBeetwenSquares();
             var boardState = FenHelper.CreateBoardState(fen);
-            _bitBoard.SetupBoard(boardState);
+            var bitBoard = new BitBoard(_bitBoardContextConverter, _zorbistHash);
+            bitBoard.SetupBoard(boardState);
 
-            var king = new King(_bitBoard.Context, _movesContainer, _movesList, _piecesListService);
+            var piecesListService = new PiecesListService(bitBoard.Context);
+
+            var king = new King(bitBoard.Context, _movesList, piecesListService, _zorbistHash);
 
             // Act
-            _bitBoard.SetupCheckingSquaresAndAttackers(_bitBoard.Context.Player, king.Square);
+            bitBoard.SetupCheckingSquaresAndAttackers(bitBoard.Context.Player, king.Square);
 
             //Assert
-            _bitBoard.Context.CheckedSquares.Should().Be(expectedCheckedSquares);
-            _bitBoard.Context.Attackers.Should().Be(expectedAttackers);
+            bitBoard.Context.CheckedSquares.Should().Be(expectedCheckedSquares);
+            bitBoard.Context.Attackers.Should().Be(expectedAttackers);
         }
 
         [Theory(DisplayName = "Should setup correct pinned squares and pinners")]
@@ -51,16 +56,19 @@ namespace Queene.Core.Tests.MoveGenerating
             // Arrange
             SquaresBetweenMasksGeneratorHelper.GenerateMasksBeetwenSquares();
             var boardState = FenHelper.CreateBoardState(fen);
-            _bitBoard.SetupBoard(boardState);
+            var bitBoard = new BitBoard(_bitBoardContextConverter, _zorbistHash);
+            bitBoard.SetupBoard(boardState);
 
-            var king = new King(_bitBoard.Context, _movesContainer, _movesList, _piecesListService);
+            var piecesListService = new PiecesListService(bitBoard.Context);
+
+            var king = new King(bitBoard.Context, _movesList, piecesListService, _zorbistHash);
 
             // Act
-            _bitBoard.SetupCheckingSquaresAndAttackers(_bitBoard.Context.Player, king.Square);
+            bitBoard.SetupCheckingSquaresAndAttackers(bitBoard.Context.Player, king.Square);
 
             //Assert
-            _bitBoard.Context.PinnedSquares.Should().Be(expectedPinnedSquares);
-            _bitBoard.Context.Pinners.Should().Be(expectedPinners);
+            bitBoard.Context.PinnedSquares.Should().Be(expectedPinnedSquares);
+            bitBoard.Context.Pinners.Should().Be(expectedPinners);
         }
     }
 }

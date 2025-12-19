@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Quenee.ConsoleApp.Commands.Abstract;
 using System;
 using System.Collections.Generic;
@@ -14,10 +15,13 @@ namespace Quenee.ConsoleApp.Commands.HelpCommand
         public List<CommandParameterBase> Params => [];
 
         private readonly IServiceProvider _serviceProvider;
+        private readonly ILogger<HelpCommand> _logger;
 
-        public HelpCommand(IServiceProvider serviceProvider)
+        public HelpCommand(IServiceProvider serviceProvider,
+            ILogger<HelpCommand> logger)
         {
             _serviceProvider = serviceProvider;
+            _logger = logger;
         }
 
         public SetPositionCommandResponse Execute(HelpCommandRequest request)
@@ -41,15 +45,16 @@ namespace Quenee.ConsoleApp.Commands.HelpCommand
 
                 if (command != null)
                 {
-                    var commandNameProperty = type.GetProperties().FirstOrDefault(x => x.Name == nameof(ICommand<,>.Name));
-
-                    Console.WriteLine(commandNameProperty.GetValue(command).ToString());
-
+                    var commandNameProperty = type.GetProperties().FirstOrDefault(x => x.Name == nameof(ICommand<,>.Name)).GetValue(command).ToString();
                     var commandParamsProperty = type.GetProperties().FirstOrDefault(x => x.Name == nameof(ICommand<,>.Params));
                     var commandParameters = commandParamsProperty.GetValue(command) as List<CommandParameterBase>;
 
+                    var parameters = "";
+
                     foreach (var param in commandParameters.OrderBy(x => x.Order))
-                        Console.WriteLine($"    {param.Order}: {param.Name} = {param.IsRequired}");
+                        parameters += $"-{param.Name} ";
+
+                    _logger.Log(LogLevel.Information, $"{commandNameProperty} {parameters}");
                 }
             }
 

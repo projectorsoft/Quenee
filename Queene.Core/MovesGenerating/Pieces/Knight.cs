@@ -5,6 +5,7 @@ using Queene.Core.MovesGenerating.Hashing;
 using Queene.Core.MovesGenerating.PiecesList;
 using QueeneEngine.Engine.Magics;
 using System.Runtime.CompilerServices;
+using System.Threading;
 
 namespace Queene.Core.MovesGenerating.Pieces
 {
@@ -26,6 +27,7 @@ namespace Queene.Core.MovesGenerating.Pieces
         {
             for (int i = 0; i < _bitBoardContext.PieceTypeList[_bitBoardContext.Player.Current][(byte)PieceType].Count(); i++)
             {
+                _moves = 0;
                 _square = _bitBoardContext.PieceTypeList[_bitBoardContext.Player.Current][(byte)PieceType].GetAtIndex(i);
 
                 if (generationType == MoveGenerationTypeEnum.All)
@@ -39,13 +41,10 @@ namespace Queene.Core.MovesGenerating.Pieces
                     _captures &= _bitBoardContext.Attackers;
                 }
 
-                if (_bitBoardContext.PinnedSquares != 0)
+                if ((_bitBoardContext.PinnedSquares & Powers.powersOfTwo[_square]) != 0)
                 {
-                    if ((_bitBoardContext.PinnedSquares & Powers.powersOfTwo[_square]) != 0)
-                    {
-                        _moves = 0;
-                        _captures = 0;
-                    }
+                    _moves = 0;
+                    _captures = 0;
                 }
 
                 AddMoves(_moves | _captures, _square, MoveTypeEnum.Move);

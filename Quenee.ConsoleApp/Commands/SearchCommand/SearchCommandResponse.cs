@@ -1,8 +1,8 @@
 ﻿using Quenee.ConsoleApp.Commands.Abstract;
 
-namespace Quenee.ConsoleApp.Commands.PerftCommand
+namespace Quenee.ConsoleApp.Commands.SearchCommand
 {
-    public class PerftCommandResponse : CommandResponseBase
+    public class SearchCommandResponse : CommandResponseBase
     {
         public long NodesCount { get; set; }
         public double TotalTimeInMs { get; set; }

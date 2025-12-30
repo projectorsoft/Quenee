@@ -49,7 +49,7 @@ namespace Quenee.ConsoleApp.Commands.PerftCommand
             };
         }
 
-        private void PrintMoves(string move, ulong count)
+        private void PrintMoves(string move, long count)
         {
             _logger.Log(LogLevel.Information, $"{move}: {count}");
         }

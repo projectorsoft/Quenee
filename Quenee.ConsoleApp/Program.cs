@@ -18,9 +18,10 @@ namespace Quenee.ConsoleApp
 
             var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
 
+            logger.Log(LogLevel.Information, "Type command (or help to see list of available commands): ");
+
             while (true)
             {
-                logger.Log(LogLevel.Information, "Type command (or help to see list of available commands): ");
                 var command = Console.ReadLine();
 
                 try
@@ -32,7 +33,8 @@ namespace Quenee.ConsoleApp
                     logger.Log(LogLevel.Information, ex.InnerException?.InnerException?.Message);
                 }
 
-                Console.WriteLine();
+                logger.Log(LogLevel.Information, "");
+                logger.Log(LogLevel.Information, "Type command: ");
             }
         }
     }

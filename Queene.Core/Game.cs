@@ -3,6 +3,7 @@ using Queene.Core.Enums;
 using Queene.Core.Fen;
 using Queene.Core.Magics;
 using Queene.Core.Models;
+using Queene.Core.MovesGenerating;
 using Queene.Core.MovesGenerating.Hashing;
 using Queene.Core.Utils;
 using QueeneEngine.Engine.Magics;
@@ -15,6 +16,8 @@ namespace Queene.Core
         private readonly Board _board;
         private readonly IBitBoardContextConverter _bitBoardContextConverter;
         private readonly ZorbistHash _zorbistHash;
+
+        public BoardContext Context => _board.BoardContext;
 
         public Game(IBitBoardContextConverter bitBoardContextConverter,
             IMagicsBinaryPersisterService magicsBinaryPersister,

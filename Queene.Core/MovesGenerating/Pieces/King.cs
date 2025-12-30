@@ -41,6 +41,7 @@ namespace Queene.Core.MovesGenerating.Pieces
         public void GenerateMoves(MoveGenerationTypeEnum generationType)
         {
             var square = Square;
+            _moves = 0;
 
             if (generationType == MoveGenerationTypeEnum.All)
             {

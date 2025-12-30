@@ -27,6 +27,7 @@ namespace Queene.Core.MovesGenerating.Pieces
 
             for (int i = 0; i < _bitBoardContext.PieceTypeList[_bitBoardContext.Player.Current][(byte)PieceType].Count(); i++)
             {
+                _moves = 0;
                 _square = _bitBoardContext.PieceTypeList[_bitBoardContext.Player.Current][(byte)PieceType].GetAtIndex(i);
                 attacks = GetAttacks(_square, _bitBoardContext.OccupiedSquares, magics);
 

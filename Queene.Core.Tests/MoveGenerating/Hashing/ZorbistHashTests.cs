@@ -48,7 +48,7 @@ namespace Queene.Core.Tests.MoveGenerating.Hashing
 
             //Act
             //Assert
-            board.BitBoardContext.Hash.Should().BeGreaterThan(0);
+            board.BoardContext.Hash.Should().BeGreaterThan(0);
         }
 
         [Theory]

@@ -19,7 +19,7 @@ namespace Queene.Core
         private readonly IPiecesListService _piecesListService;
         private readonly ZorbistHash _zorbistHash;
 
-        public BoardContext BitBoardContext => _bitBoard.Context;
+        public BoardContext BoardContext => _bitBoard.Context;
 
         public Board(IBitBoardContextConverter bitBoardContextConverter,
             ZorbistHash zorbistHash)

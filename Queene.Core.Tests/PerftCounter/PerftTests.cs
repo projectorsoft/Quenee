@@ -10,7 +10,7 @@ namespace Queene.Core.Tests.PerftCounter
     {
         [Theory]
         [ClassData(typeof(PerftTestData))]
-        public void ShouldReturnCorrectPerftResults(string fen, int ply, long expectedResult)
+        public void ShouldReturnCorrectPerftResults(string fen, int ply, ulong expectedResult)
         {
             // Arrange
             var board = new Board(_bitBoardContextConverter, _zorbistHash);

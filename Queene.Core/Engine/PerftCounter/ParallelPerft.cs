@@ -7,14 +7,14 @@ namespace Queene.Core.Engine.PerftCounter
     {
         private readonly IQueeneGame _game = game;
 
-        public delegate void PrintResults(string move, long count);
+        public delegate void PrintResults(string move, ulong count);
         public event PrintResults OnPrintResults;
 
-        public long RunInParallel(int depth, int maxParallelOperations)
+        public ulong RunInParallel(int depth, int maxParallelOperations)
         {
             var moves = _game.GenerateMoves();
 
-            long count = 0;
+            ulong count = 0;
             var fen = _game.GetFen();
 
             var result = Parallel.ForEach(moves, new ParallelOptions { MaxDegreeOfParallelism = maxParallelOperations }, (move, state, index) =>

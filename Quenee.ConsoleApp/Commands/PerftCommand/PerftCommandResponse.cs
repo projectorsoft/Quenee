@@ -4,7 +4,7 @@ namespace Quenee.ConsoleApp.Commands.PerftCommand
 {
     public class PerftCommandResponse : CommandResponseBase
     {
-        public long NodesCount { get; set; }
+        public ulong NodesCount { get; set; }
         public double TotalTimeInMs { get; set; }
     }
 }

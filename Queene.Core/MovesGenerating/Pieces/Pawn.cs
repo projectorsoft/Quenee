@@ -105,9 +105,9 @@ namespace Queene.Core.MovesGenerating.Pieces
             //enPassant
             if (move.MoveType == MoveTypeEnum.EnPassante)
             {
-                var capturedSquare = _bitBoardContext.Player.Current == Player.White ? BoardConsts.SQUARES_BACKWARD[move.To] : BoardConsts.SQUARES_FORWARD[move.To];
-                _bitBoardContext.Pieces[_bitBoardContext.Player.Oponnent][(byte)PieceTypeEnum.Pawn] ^= Powers.powersOfTwo[capturedSquare];
-                _bitBoardContext.Pieces[_bitBoardContext.Player.Oponnent][(byte)PieceTypeEnum.All] ^= Powers.powersOfTwo[capturedSquare];
+                //var capturedSquare = _bitBoardContext.Player.Current == Player.White ? BoardConsts.SQUARES_BACKWARD[move.To] : BoardConsts.SQUARES_FORWARD[move.To];
+                //_bitBoardContext.Pieces[_bitBoardContext.Player.Oponnent][(byte)PieceTypeEnum.Pawn] ^= Powers.powersOfTwo[capturedSquare];
+                //_bitBoardContext.Pieces[_bitBoardContext.Player.Oponnent][(byte)PieceTypeEnum.All] ^= Powers.powersOfTwo[capturedSquare];
 
                 ComputeHash();
             }
@@ -123,9 +123,9 @@ namespace Queene.Core.MovesGenerating.Pieces
             //enPassant
             if (move.MoveType == MoveTypeEnum.EnPassante)
             {
-                var capturedSquare = _bitBoardContext.Player.Current == Player.White ? BoardConsts.SQUARES_BACKWARD[move.To] : BoardConsts.SQUARES_FORWARD[move.To];
-                _bitBoardContext.Pieces[_bitBoardContext.Player.Oponnent][(byte)PieceTypeEnum.Pawn] |= Powers.powersOfTwo[capturedSquare];
-                _bitBoardContext.Pieces[_bitBoardContext.Player.Oponnent][(byte)PieceTypeEnum.All] |= Powers.powersOfTwo[capturedSquare];
+                //var capturedSquare = _bitBoardContext.Player.Current == Player.White ? BoardConsts.SQUARES_BACKWARD[move.To] : BoardConsts.SQUARES_FORWARD[move.To];
+                //_bitBoardContext.Pieces[_bitBoardContext.Player.Oponnent][(byte)PieceTypeEnum.Pawn] |= Powers.powersOfTwo[capturedSquare];
+                //_bitBoardContext.Pieces[_bitBoardContext.Player.Oponnent][(byte)PieceTypeEnum.All] |= Powers.powersOfTwo[capturedSquare];
 
                 ComputeHash();
             }

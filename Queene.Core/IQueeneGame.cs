@@ -12,7 +12,7 @@ namespace Queene.Core
         void SetupPosition(string fen);
         Move[] GenerateMoves(MoveGenerationTypeEnum generationType = MoveGenerationTypeEnum.All);
         ExtendedMove MakeMove(Move move);
-        void UnmakeMove(ExtendedMove move);
+        bool UnmakeMove();
         string GetFen();
         Board CloneBoard();
     }

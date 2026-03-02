@@ -17,11 +17,12 @@ namespace Queene.Core.Tests.MoveGenerating.Hashing
             //Act
 
             //Assert
-            for (PieceTypeEnum piece = PieceTypeEnum.Knight; piece <= PieceTypeEnum.King; piece++)
-            {
-                for (int square = 0; square < 64; square++)
-                    _zorbistHash.Pieces[(byte)piece][square].Should().BeGreaterThan(0);
-            }
+            for (PlayerEnum player = PlayerEnum.Black; player <= PlayerEnum.White; player++)
+                for (PieceTypeEnum piece = PieceTypeEnum.Knight; piece <= PieceTypeEnum.King; piece++)
+                {
+                    for (int square = 0; square < 64; square++)
+                        _zorbistHash.Pieces[(byte)player][(byte)piece][square].Should().BeGreaterThan(0);
+                }
 
             for (PlayerEnum player = PlayerEnum.Black; player <= PlayerEnum.White; player++)
             {

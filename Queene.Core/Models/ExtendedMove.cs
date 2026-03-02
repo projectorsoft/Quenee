@@ -29,6 +29,7 @@ namespace Queene.Core.Models
         public bool QueenSideCastleBreak { get; set; }
 
         public byte? EnPassanteSquare { get; set; }
+        public byte? CaptureSquare { get; set; }
 
         public bool IsCastleKingSideMove => MoveType == MoveTypeEnum.Castle && To < From;
         public bool IsCastleQueenSideMove => MoveType == MoveTypeEnum.Castle && To > From;
@@ -51,12 +52,17 @@ namespace Queene.Core.Models
 
             if (MoveType == MoveTypeEnum.EnPassante)
             {
-                var capturedSquare = context.Player.Current == Player.White ? BoardConsts.SQUARES_BACKWARD[To] : BoardConsts.SQUARES_FORWARD[To];
-                Captured = context.GetCapturedPieceType(capturedSquare, context.Player.Oponnent);
+                CaptureSquare = context.Player.Current == Player.White ? BoardConsts.SQUARES_BACKWARD[To] : BoardConsts.SQUARES_FORWARD[To];
+                Captured = context.GetCapturedPieceType(CaptureSquare.Value, context.Player.Oponnent);
             }
             else
                 if (MoveType != MoveTypeEnum.Castle)
+                {
                     Captured = context.GetCapturedPieceType(To, context.Player.Oponnent);
+
+                    if (Captured != null)
+                        CaptureSquare = To;
+                }
 
             EnPassanteSquare = context.EnPassantSquare;
         }

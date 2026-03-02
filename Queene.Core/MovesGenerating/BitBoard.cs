@@ -53,6 +53,8 @@ namespace Queene.Core.MovesGenerating
 
 			if (!string.IsNullOrWhiteSpace(state.EnPassant))
 				_context.EnPassantSquare = (byte)Array.IndexOf(BoardConsts.SQUARES_NAMES, state.EnPassant.ToUpper(CultureInfo.InvariantCulture));
+			else
+				_context.EnPassantSquare = null;
 
 			_context.Player.Set(state.TurnToMove);
 

@@ -6,13 +6,13 @@ namespace Queene.Core.MovesGenerating.Hashing
 {
     public class ZorbistHash
     {
-        public ulong[][] Pieces { get; private set; } = []; //[pieceType][square]
+        public ulong[][][] Pieces { get; private set; } = []; //[player][pieceType][square]
         public ulong[][] EnPassante { get; private set; } = []; //[player][square]
         public ulong[] Player { get; private set; } = [];
         public ulong[] KingSideCastle { get; private set; } = [];
         public ulong[] QueenSideCastle { get; private set; } = [];
 
-        private static readonly Random _rnd = new();
+        private readonly Random _rnd = new();
 
         public ZorbistHash()
         {
@@ -21,14 +21,18 @@ namespace Queene.Core.MovesGenerating.Hashing
 
         public void Init()
         {
-            Pieces = new ulong[6][];
+            Pieces = new ulong[2][][];
 
-            for (PieceTypeEnum piece = PieceTypeEnum.Knight; piece <= PieceTypeEnum.King; piece++)
+            for (PlayerEnum player = PlayerEnum.Black; player <= PlayerEnum.White; player++)
             {
-                Pieces[(byte)piece] = new ulong[64];
+                Pieces[(byte)player] = new ulong[6][];
+                for (PieceTypeEnum piece = PieceTypeEnum.Knight; piece <= PieceTypeEnum.King; piece++)
+                {
+                    Pieces[(byte)player][(byte)piece] = new ulong[64];
 
-                for (int square = 0; square < 64; square++)
-                    Pieces[(byte)piece][square] = _rnd.NextULong();
+                    for (int square = 0; square < 64; square++)
+                        Pieces[(byte)player][(byte)piece][square] = _rnd.NextULong();
+                }
             }
 
             KingSideCastle = new ulong[2];
@@ -60,18 +64,21 @@ namespace Queene.Core.MovesGenerating.Hashing
 
             hash ^= Player[context.Player.Current];
 
-            for (PieceTypeEnum piece = PieceTypeEnum.Knight; piece <= PieceTypeEnum.King; piece++)
-                for (int i = 0; i < context.PieceTypeList[context.Player.Current][(byte)piece].Count(); i++)
-                {
-                    var square = context.PieceTypeList[context.Player.Current][(byte)piece].GetAtIndex(i);
-                    hash ^= Pieces[(byte)PieceTypeEnum.Pawn][square];
-                }
+            for (PlayerEnum player = PlayerEnum.Black; player <= PlayerEnum.White; player++)
+            {
+                for (PieceTypeEnum piece = PieceTypeEnum.Knight; piece <= PieceTypeEnum.King; piece++)
+                    for (int i = 0; i < context.PieceTypeList[(byte)player][(byte)piece].Count(); i++)
+                    {
+                        var square = context.PieceTypeList[(byte)player][(byte)piece].GetAtIndex(i);
+                        hash ^= Pieces[(byte)player][(byte)piece][square];
+                    }
 
-            if (context.CanCastleKingSide[context.Player.Current])
-                hash ^= KingSideCastle[context.Player.Current];
+                if (context.CanCastleKingSide[(byte)player])
+                    hash ^= KingSideCastle[(byte)player];
 
-            if (context.CanCastleQueenSide[context.Player.Current])
-                hash ^= QueenSideCastle[context.Player.Current];
+                if (context.CanCastleQueenSide[(byte)player])
+                    hash ^= QueenSideCastle[(byte)player];
+            }
 
             if (context.EnPassantSquare.HasValue)
             {

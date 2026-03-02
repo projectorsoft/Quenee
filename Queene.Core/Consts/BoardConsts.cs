@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Queene.Core.Consts
 {
-    internal static class BoardConsts
+    public static class BoardConsts
 	{
 		public const byte MAX_MOVES_NUMBER = 128;
 

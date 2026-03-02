@@ -100,7 +100,7 @@ namespace Queene.Core.MovesGenerating.PiecesList
             _pieceIndex = _bitBoardContext.PieceIndices[_bitBoardContext.Player.Current][move.From];
             _bitBoardContext.PieceIndices[_bitBoardContext.Player.Current][move.From] = null;
             _square = _bitBoardContext.PieceTypeList[_bitBoardContext.Player.Current][(byte)move.PieceType].RemoveAtIndex(_pieceIndex.Index);
-            _bitBoardContext.PieceIndices[_bitBoardContext.Player.Current][_square] = _pieceIndex;
+            _bitBoardContext.PieceIndices[_bitBoardContext.Player.Current][_square] = _pieceIndex; //ttt
 
             _bitBoardContext.PieceTypeList[_bitBoardContext.Player.Current][(byte)move.PromotedTo.Value].Add(move.To);
             var index = _bitBoardContext.PieceTypeList[_bitBoardContext.Player.Current][(byte)move.PromotedTo.Value].GetLastIndex();
@@ -113,7 +113,7 @@ namespace Queene.Core.MovesGenerating.PiecesList
             _pieceIndex = _bitBoardContext.PieceIndices[_bitBoardContext.Player.Current][move.To];
             _bitBoardContext.PieceIndices[_bitBoardContext.Player.Current][move.To] = null;
             _square = _bitBoardContext.PieceTypeList[_bitBoardContext.Player.Current][(byte)move.PromotedTo.Value].RemoveAtIndex(_pieceIndex.Index);
-            _bitBoardContext.PieceIndices[_bitBoardContext.Player.Current][_square] = _pieceIndex;
+            _bitBoardContext.PieceIndices[_bitBoardContext.Player.Current][_square] = _pieceIndex; //ttt
 
             _bitBoardContext.PieceTypeList[_bitBoardContext.Player.Current][(byte)move.PieceType].Add(move.From);
             var index = _bitBoardContext.PieceTypeList[_bitBoardContext.Player.Current][(byte)move.PieceType].GetLastIndex();

@@ -8,6 +8,7 @@ using Queene.Core.MovesGenerating.Hashing;
 using Queene.Core.Utils;
 using QueeneEngine.Engine.Magics;
 using System;
+using System.Collections.Generic;
 
 namespace Queene.Core
 {
@@ -16,6 +17,7 @@ namespace Queene.Core
         private readonly Board _board;
         private readonly IBitBoardContextConverter _bitBoardContextConverter;
         private readonly ZorbistHash _zorbistHash;
+        private readonly Stack<ExtendedMove> _movesHistory;
 
         public BoardContext Context => _board.BoardContext;
 
@@ -25,7 +27,7 @@ namespace Queene.Core
         {
             SquaresBetweenMasksGeneratorHelper.GenerateMasksBeetwenSquares();
             MovesContainer.InitMovesMasks(magicsBinaryPersister);
-            PerftTranspositionTable.Init();
+            //PerftTranspositionTable.Init();
 
             if (zorbistHash == null)
                 throw new ArgumentNullException("Missing Zorbis hash");
@@ -33,6 +35,7 @@ namespace Queene.Core
             _board = new Board(bitBoardContextConverter, zorbistHash);
             _bitBoardContextConverter = bitBoardContextConverter;
             _zorbistHash = zorbistHash;
+            _movesHistory = new Stack<ExtendedMove>();
         }
 
         public void NewGame()
@@ -52,12 +55,22 @@ namespace Queene.Core
 
         public ExtendedMove MakeMove(Move move)
         {
-            return _board.MakeMove(move);
+            var madeMove = _board.MakeMove(move);
+
+            _movesHistory.Push(madeMove);
+
+            return madeMove;
         }
 
-        public void UnmakeMove(ExtendedMove move)
+        public bool UnmakeMove()
         {
+            if (_movesHistory.Count == 0)
+                return false;
+
+            var move = _movesHistory.Pop();
             _board.UnmakeMove(move);
+
+            return true;
         }
 
         public string GetFen()

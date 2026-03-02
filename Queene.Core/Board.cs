@@ -78,7 +78,7 @@ namespace Queene.Core
         {
             var extMove = new ExtendedMove(move, _bitBoard.Context);
 
-            _pieces[(byte)extMove.PieceType].MakeMove(extMove);
+             _pieces[(byte)extMove.PieceType].MakeMove(extMove);
             _bitBoard.Context.Player.Change();
             _bitBoard.Context.Hash ^= _zorbistHash.Player[_bitBoard.Context.Player.Current];
 
@@ -88,9 +88,9 @@ namespace Queene.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void UnmakeMove(ExtendedMove extMove)
         {
+            _bitBoard.Context.Hash ^= _zorbistHash.Player[_bitBoard.Context.Player.Current];
             _bitBoard.Context.Player.Change();
             _pieces[(byte)extMove.PieceType].UnmakeMove(extMove);
-            _bitBoard.Context.Hash ^= _zorbistHash.Player[_bitBoard.Context.Player.Current];
         }
 
         public string GetFen()

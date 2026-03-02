@@ -132,6 +132,8 @@ namespace Queene.Core.MovesGenerating.Pieces
                 _bitBoardContext.Pieces[_bitBoardContext.Player.Current][(byte)PieceTypeEnum.All] ^= Powers.powersOfTwo[Rook.KingSideSourceSquare[_bitBoardContext.Player.Current]];
                 _bitBoardContext.Pieces[_bitBoardContext.Player.Current][(byte)PieceTypeEnum.All] ^= Powers.powersOfTwo[Rook.KingSideDestinationSquare[_bitBoardContext.Player.Current]];
 
+                _bitBoardContext.Hash ^= _zorbistHash.Pieces[_bitBoardContext.Player.Current][(byte)PieceTypeEnum.Rook][Rook.KingSideSourceSquare[_bitBoardContext.Player.Current]];
+                _bitBoardContext.Hash ^= _zorbistHash.Pieces[_bitBoardContext.Player.Current][(byte)PieceTypeEnum.Rook][Rook.KingSideDestinationSquare[_bitBoardContext.Player.Current]];
                 _bitBoardContext.Hash ^= _zorbistHash.KingSideCastle[_bitBoardContext.Player.Current];
             }
             else if (move.IsCastleQueenSideMove)
@@ -140,6 +142,9 @@ namespace Queene.Core.MovesGenerating.Pieces
                 _bitBoardContext.Pieces[_bitBoardContext.Player.Current][(byte)PieceTypeEnum.Rook] ^= Powers.powersOfTwo[Rook.QueenSideDestinationSquare[_bitBoardContext.Player.Current]];
                 _bitBoardContext.Pieces[_bitBoardContext.Player.Current][(byte)PieceTypeEnum.All] ^= Powers.powersOfTwo[Rook.QueenSideSourceSquare[_bitBoardContext.Player.Current]];
                 _bitBoardContext.Pieces[_bitBoardContext.Player.Current][(byte)PieceTypeEnum.All] ^= Powers.powersOfTwo[Rook.QueenSideDestinationSquare[_bitBoardContext.Player.Current]];
+
+                _bitBoardContext.Hash ^= _zorbistHash.Pieces[_bitBoardContext.Player.Current][(byte)PieceTypeEnum.Rook][Rook.QueenSideSourceSquare[_bitBoardContext.Player.Current]];
+                _bitBoardContext.Hash ^= _zorbistHash.Pieces[_bitBoardContext.Player.Current][(byte)PieceTypeEnum.Rook][Rook.QueenSideDestinationSquare[_bitBoardContext.Player.Current]];
 
                 _bitBoardContext.Hash ^= _zorbistHash.QueenSideCastle[_bitBoardContext.Player.Current];
             }

@@ -54,7 +54,7 @@ namespace Quenee.ConsoleApp.Commands.HelpCommand
                     foreach (var param in commandParameters.OrderBy(x => x.Order))
                         parameters += $"-{param.Name} ";
 
-                    _logger.Log(LogLevel.Information, $"{commandNameProperty} {parameters}");
+                    _logger.Log(LogLevel.Information, $"{commandNameProperty} {parameters} \r\n \r\n");
                 }
             }
 

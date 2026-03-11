@@ -109,7 +109,7 @@ namespace Queene.Core.MovesGenerating.Pieces
                 //_bitBoardContext.Pieces[_bitBoardContext.Player.Oponnent][(byte)PieceTypeEnum.Pawn] ^= Powers.powersOfTwo[capturedSquare];
                 //_bitBoardContext.Pieces[_bitBoardContext.Player.Oponnent][(byte)PieceTypeEnum.All] ^= Powers.powersOfTwo[capturedSquare];
 
-                ComputeHash();
+                //ComputeHash(move);
             }
 
             base.MakeMove(move);
@@ -127,16 +127,16 @@ namespace Queene.Core.MovesGenerating.Pieces
                 //_bitBoardContext.Pieces[_bitBoardContext.Player.Oponnent][(byte)PieceTypeEnum.Pawn] |= Powers.powersOfTwo[capturedSquare];
                 //_bitBoardContext.Pieces[_bitBoardContext.Player.Oponnent][(byte)PieceTypeEnum.All] |= Powers.powersOfTwo[capturedSquare];
 
-                ComputeHash();
+                //ComputeHash(move);
             }
         }
 
-        private void ComputeHash()
+        private void ComputeHash(ExtendedMove move)
         {
             if (_bitBoardContext.Player.Current == Player.White)
-                _bitBoardContext.Hash ^= _zorbistHash.EnPassante[Player.White][_bitBoardContext.EnPassantSquare.Value - 40];
+                _bitBoardContext.Hash ^= _zorbistHash.EnPassante[Player.White][move.To - 40];
             else
-                _bitBoardContext.Hash ^= _zorbistHash.EnPassante[Player.Black][_bitBoardContext.EnPassantSquare.Value - 16];
+                _bitBoardContext.Hash ^= _zorbistHash.EnPassante[Player.Black][move.To - 16];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

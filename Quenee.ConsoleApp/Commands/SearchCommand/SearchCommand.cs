@@ -28,7 +28,7 @@ namespace Quenee.ConsoleApp.Commands.SearchCommand
 
         public SearchCommandResponse Execute(SearchCommandRequest request)
         {
-            _logger.Log(LogLevel.Information, $"Searching for the best move...");
+            _logger.Log(LogLevel.Information, $"Searching for the best move... \r\n");
 
             var search = new ParallelSearch(_game);
             search.OnPrintResults += PrintMoves;
@@ -41,7 +41,7 @@ namespace Quenee.ConsoleApp.Commands.SearchCommand
             stopwatch.Stop();
 
             //_logger.Log(LogLevel.Information, $"Moves count: {search.Stats.NodesSearched} in {stopwatch.ElapsedMilliseconds} ms");
-            _logger.Log(LogLevel.Information, $"Best move: {bestMove}");
+            _logger.Log(LogLevel.Information, $"Best move: {bestMove} \r\n");
 
             return new SearchCommandResponse
             {
@@ -52,7 +52,7 @@ namespace Quenee.ConsoleApp.Commands.SearchCommand
 
         private void PrintMoves(string move, long count, string pv)
         {
-            _logger.Log(LogLevel.Information, $"{move}: {count} -> {pv}");
+            _logger.Log(LogLevel.Information, $"{move}: {count} -> {pv} \r\n");
         }
     }
 }

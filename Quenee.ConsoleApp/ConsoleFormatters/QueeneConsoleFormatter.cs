@@ -33,7 +33,7 @@ namespace Quenee.ConsoleApp.ConsoleFormatters
             }
 
             textWriter.Write(TextColor);
-            textWriter.WriteLine(message);
+            textWriter.Write(message);
         }
     }
 }

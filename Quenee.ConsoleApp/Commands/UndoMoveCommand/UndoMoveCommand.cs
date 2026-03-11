@@ -27,9 +27,11 @@ namespace Quenee.ConsoleApp.Commands.UndoMoveCommand
 
             if (_game.UnmakeMove())
             {
-                _logger.Log(LogLevel.Information, $"Move undone");
+                _logger.Log(LogLevel.Information, $"Move undone \r\n", "aaaa");
                 _logger.Log(LogLevel.Information, $"Board fen: {_game.Context.ToString()}");
-                _logger.Log(LogLevel.Information, $"Board hash: {hash} => {_game.Context.Hash}");
+                _logger.Log(LogLevel.Information, $"Pieces: {_game.Context.PrintPieces()}");
+                //_logger.Log(LogLevel.Information, $"Indexes: {_game.Context.PrintPiecesIndicies()} \r\n");
+                _logger.Log(LogLevel.Information, $"Board hash: {hash} => {_game.Context.Hash} \r\n \r\n");
             }
 
             return new UndoMoveCommandResponse();

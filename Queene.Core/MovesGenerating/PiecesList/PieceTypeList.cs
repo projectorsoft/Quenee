@@ -1,4 +1,5 @@
-﻿using Queene.Core.Enums;
+﻿using Queene.Core.Consts;
+using Queene.Core.Enums;
 using System.Text;
 
 namespace Queene.Core.MovesGenerating.PiecesList
@@ -59,9 +60,9 @@ namespace Queene.Core.MovesGenerating.PiecesList
             var sb = new StringBuilder();
 
             for (int i = 0; i < _count; i++)
-                sb.Append(_squares[i] + ", ");
+                sb.Append(BoardConsts.SQUARES_NAMES[_squares[i]] + ", ");
 
-            return $"{_pieceType} -> [{sb}]";
+            return $"{_pieceType}: [{sb.ToString().TrimEnd(',')}]";
         }
     }
 }

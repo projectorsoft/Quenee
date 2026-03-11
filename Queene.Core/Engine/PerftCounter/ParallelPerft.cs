@@ -21,9 +21,12 @@ namespace Queene.Core.Engine.PerftCounter
             {
                 var board = _game.CloneBoard();
                 var extMove = board.MakeMove(move);
-
-                var perft = new Perft(board);
-                var nodes = perft.Run(depth - 1);
+                ulong nodes = 1;
+                if (depth > 1)
+                {
+                    var perft = new Perft(board);
+                    nodes = perft.Run(depth - 1);
+                }
 
                 Interlocked.Add(ref count, nodes);
 

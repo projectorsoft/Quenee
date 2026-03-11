@@ -18,16 +18,8 @@ namespace Queene.Core.Engine.PerftCounter
             if (depth == 1)
                 return (ulong)moves.Length;
 
-            //if (depth == 0)
-            //    return 1;
-
-            //var entry = PerftTranspositionTable.Get(_board.BitBoardContext.Hash, depth);
-
-            //if (entry != null)
-            //    return entry.Value;
-
-            //if (PerftTranspositionTable.TryGet(_board.BitBoardContext.Hash, depth, out ulong nodesCached))
-            //    return nodesCached;
+            //if (PerftTranspositionTable.TryGet(_board.BoardContext.Hash, depth, out ulong cachedNodes))
+            //    return cachedNodes;
 
             ulong nodes = 0;
 
@@ -35,12 +27,12 @@ namespace Queene.Core.Engine.PerftCounter
             {
                 var extMove = _board.MakeMove(moves[i]);
 
-                nodes = nodes + Run(depth - 1);
+                nodes += Run(depth - 1);
 
                 _board.UnmakeMove(extMove);
             }
 
-            //PerftTranspositionTable.Add(_board.BitBoardContext.Hash, depth, nodes);
+            //PerftTranspositionTable.Store(_board.BoardContext.Hash, depth, nodes);
 
             return nodes;
         }

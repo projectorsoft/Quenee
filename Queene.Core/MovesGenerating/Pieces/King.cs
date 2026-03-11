@@ -145,7 +145,6 @@ namespace Queene.Core.MovesGenerating.Pieces
 
                 _bitBoardContext.Hash ^= _zorbistHash.Pieces[_bitBoardContext.Player.Current][(byte)PieceTypeEnum.Rook][Rook.QueenSideSourceSquare[_bitBoardContext.Player.Current]];
                 _bitBoardContext.Hash ^= _zorbistHash.Pieces[_bitBoardContext.Player.Current][(byte)PieceTypeEnum.Rook][Rook.QueenSideDestinationSquare[_bitBoardContext.Player.Current]];
-
                 _bitBoardContext.Hash ^= _zorbistHash.QueenSideCastle[_bitBoardContext.Player.Current];
             }
         }

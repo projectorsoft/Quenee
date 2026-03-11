@@ -7,6 +7,7 @@ using Queene.Core.MovesGenerating.PiecesList;
 using QueeneEngine.Helpers.Bitwise;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace Queene.Core.MovesGenerating
 {
@@ -176,7 +177,38 @@ namespace Queene.Core.MovesGenerating
 			OpponentBishopsAndQueens = Pieces[Player.Oponnent][(byte)PieceTypeEnum.Bishop] | Pieces[Player.Oponnent][(byte)PieceTypeEnum.Queen];
 		}
 
-		public override string ToString()
+		public string PrintPieces()
+		{
+			var sb = new StringBuilder();
+
+			for (PlayerEnum player = PlayerEnum.Black; player <= PlayerEnum.White; player++)
+			{
+				sb.AppendLine();
+                sb.AppendLine($"{player.ToString()}:");
+				for (PieceTypeEnum pieceType = PieceTypeEnum.Knight; pieceType <= PieceTypeEnum.King; pieceType++)
+					sb.AppendLine(PieceTypeList[(byte)player][(byte)pieceType].ToString());
+			}
+
+			return sb.ToString();
+        }
+
+        public string PrintPiecesIndicies()
+        {
+            var sb = new StringBuilder();
+
+            for (PlayerEnum player = PlayerEnum.Black; player <= PlayerEnum.White; player++)
+            {
+                sb.AppendLine();
+                sb.AppendLine($"{player.ToString()}:");
+                for (int i=0; i < 64; i++)
+					if (PieceIndices[(byte)player][i] != null)
+						sb.AppendLine(PieceIndices[(byte)player][i].ToString());
+            }
+
+            return sb.ToString();
+        }
+
+        public override string ToString()
 		{
 			var boardState = _bitBoardContextConverter?.Convert(this);
 

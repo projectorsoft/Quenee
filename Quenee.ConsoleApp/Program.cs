@@ -18,7 +18,7 @@ namespace Quenee.ConsoleApp
 
             var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
 
-            logger.Log(LogLevel.Information, "Type command (or help to see list of available commands): ");
+            logger.Log(LogLevel.Information, "Type command (or help to see list of available commands): \r\n");
 
             while (true)
             {

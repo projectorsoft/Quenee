@@ -28,7 +28,7 @@ namespace Quenee.ConsoleApp.Commands.PerftCommand
 
         public PerftCommandResponse Execute(PerftCommandRequest request)
         {
-            _logger.Log(LogLevel.Information, $"Running perft using {request.MaxParallelOperations} tasks");
+            _logger.Log(LogLevel.Information, $"Running perft using {request.MaxParallelOperations} tasks \r\n");
 
             var perft = new ParallelPerft(_game);
             perft.OnPrintResults += PrintMoves;
@@ -40,7 +40,7 @@ namespace Quenee.ConsoleApp.Commands.PerftCommand
 
             stopwatch.Stop();
 
-            _logger.Log(LogLevel.Information, $"Moves count: {movesCount} in {stopwatch.ElapsedMilliseconds} ms");
+            _logger.Log(LogLevel.Information, $"Moves count: {movesCount} in {stopwatch.ElapsedMilliseconds} ms \r\n\r\n");
 
             return new PerftCommandResponse
             {
@@ -51,7 +51,7 @@ namespace Quenee.ConsoleApp.Commands.PerftCommand
 
         private void PrintMoves(string move, ulong count)
         {
-            _logger.Log(LogLevel.Information, $"{move}: {count}");
+            _logger.Log(LogLevel.Information, $"{move}: {count} \r\n");
         }
     }
 }

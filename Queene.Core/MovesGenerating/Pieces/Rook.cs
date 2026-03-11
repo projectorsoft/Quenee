@@ -47,7 +47,7 @@ namespace Queene.Core.MovesGenerating.Pieces
                 {
                     move.QueenSideCastleBreak = true;
                     _bitBoardContext.SetQueenSideCastleAllowance(_bitBoardContext.Player.Current, false);
-                    _bitBoardContext.Hash ^= _zorbistHash.KingSideCastle[_bitBoardContext.Player.Current];
+                    _bitBoardContext.Hash ^= _zorbistHash.QueenSideCastle[_bitBoardContext.Player.Current];
                 }
             }
 
@@ -65,7 +65,7 @@ namespace Queene.Core.MovesGenerating.Pieces
             else if (move.QueenSideCastleBreak)
             {
                 _bitBoardContext.SetQueenSideCastleAllowance(_bitBoardContext.Player.Current, true);
-                _bitBoardContext.Hash ^= _zorbistHash.KingSideCastle[_bitBoardContext.Player.Current];
+                _bitBoardContext.Hash ^= _zorbistHash.QueenSideCastle[_bitBoardContext.Player.Current];
             }
 
             base.UnmakeMove(move);

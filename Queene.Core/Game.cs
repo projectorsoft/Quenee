@@ -1,4 +1,5 @@
-﻿using Queene.Core.Converters;
+﻿using Microsoft.Extensions.Caching.Memory;
+using Queene.Core.Converters;
 using Queene.Core.Enums;
 using Queene.Core.Fen;
 using Queene.Core.Magics;
@@ -16,6 +17,7 @@ namespace Queene.Core
     {
         private readonly Board _board;
         private readonly IBitBoardContextConverter _bitBoardContextConverter;
+        private readonly IMemoryCache _movesCache;
         private readonly ZorbistHash _zorbistHash;
         private readonly Stack<ExtendedMove> _movesHistory;
 
@@ -23,15 +25,17 @@ namespace Queene.Core
 
         public Game(IBitBoardContextConverter bitBoardContextConverter,
             IMagicsBinaryPersisterService magicsBinaryPersister,
+            IMemoryCache movesCache,
             ZorbistHash zorbistHash)
         {
             SquaresBetweenMasksGeneratorHelper.GenerateMasksBeetwenSquares();
             MovesContainer.InitMovesMasks(magicsBinaryPersister);
-            //PerftTranspositionTable.Init();
+            PerftTranspositionTable.Init();
 
             if (zorbistHash == null)
                 throw new ArgumentNullException("Missing Zorbis hash");
 
+            _movesCache = movesCache;
             _board = new Board(bitBoardContextConverter, zorbistHash);
             _bitBoardContextConverter = bitBoardContextConverter;
             _zorbistHash = zorbistHash;

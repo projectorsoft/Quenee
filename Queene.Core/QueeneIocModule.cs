@@ -14,6 +14,10 @@ namespace Queene.Core
             serviceCollection.AddSingleton<IBitBoardContextConverter, BitBoardContextConverter>();
             serviceCollection.AddSingleton<ZorbistHash>();
             serviceCollection.AddSingleton<IQueeneGame, Game>();
+            serviceCollection.AddMemoryCache((options) =>
+            {
+                options.TrackStatistics = false;
+            });
         }
     }
 }

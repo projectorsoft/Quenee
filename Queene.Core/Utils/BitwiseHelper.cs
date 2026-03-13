@@ -1,7 +1,6 @@
 ﻿using Queene.Core.Consts;
 using System.Collections.Generic;
 using System.Numerics;
-using System.Runtime.CompilerServices;
 
 namespace QueeneEngine.Helpers.Bitwise
 {
@@ -57,7 +56,6 @@ namespace QueeneEngine.Helpers.Bitwise
 		/// </summary>
 		/// <param name="mask">binary number</param>
 		/// <returns>index</returns>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static byte FastBitScanForward(ulong mask)
 		{
             return (byte)BitOperations.TrailingZeroCount(mask);
@@ -69,7 +67,6 @@ namespace QueeneEngine.Helpers.Bitwise
 		/// </summary>
 		/// <param name="mask"></param>
 		/// <returns></returns>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static byte FastBitscanRevers(ulong mask)
 		{
             return (byte)BitOperations.TrailingZeroCount(mask);
@@ -135,7 +132,6 @@ namespace QueeneEngine.Helpers.Bitwise
 		/// <param name="mask"></param>
 		/// <param name="index"></param>
 		/// <returns></returns>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool IsSet(ulong mask, int index)
 		{
 			return (mask & Powers.powersOfTwo[index]) != 0;
@@ -146,7 +142,6 @@ namespace QueeneEngine.Helpers.Bitwise
 		/// </summary>
 		/// <param name="mask">binary number</param>
 		/// <returns></returns>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static byte[] GetAllSetBitsInMask(ulong mask, out byte count)
 		{
 			byte[] result = new byte[64];
@@ -168,7 +163,6 @@ namespace QueeneEngine.Helpers.Bitwise
 		/// </summary>
 		/// <param name="mask"></param>
 		/// <returns></returns>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static byte CountOnes(ulong mask)
 		{
 			byte dst, count = 0;
@@ -184,7 +178,6 @@ namespace QueeneEngine.Helpers.Bitwise
 			return count;
 		}
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool IsMoreThanOneSetBits(ulong mask)
 		{
 			byte dst = _scanMethod(mask);

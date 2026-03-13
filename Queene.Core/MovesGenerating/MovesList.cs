@@ -1,7 +1,6 @@
 ﻿using Queene.Core.Consts;
 using Queene.Core.Models;
 using System;
-using System.Runtime.CompilerServices;
 
 namespace Queene.Core.MovesGenerating
 {
@@ -31,7 +30,6 @@ namespace Queene.Core.MovesGenerating
 			_count = 0;
 		}
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public Move[] Get()
 		{
 			Span<Move> span = new Span<Move>(_moves);

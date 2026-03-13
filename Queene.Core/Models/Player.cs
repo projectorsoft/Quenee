@@ -1,5 +1,4 @@
 ﻿using Queene.Core.Enums;
-using System.Runtime.CompilerServices;
 
 namespace Queene.Core.Models
 {
@@ -24,7 +23,6 @@ namespace Queene.Core.Models
             Oponnent = (byte)(Current ^ 1);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Change()
         {
             Oponnent = Current;

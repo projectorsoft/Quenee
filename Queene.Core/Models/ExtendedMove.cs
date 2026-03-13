@@ -5,7 +5,7 @@ using System;
 
 namespace Queene.Core.Models
 {
-    public class ExtendedMove
+    public struct ExtendedMove
     {
         public Move Move { get; private set; }
         public byte From { get; private set; }

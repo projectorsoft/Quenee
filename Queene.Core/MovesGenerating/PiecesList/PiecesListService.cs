@@ -1,7 +1,6 @@
 ﻿using Queene.Core.Enums;
 using Queene.Core.Models;
 using Queene.Core.MovesGenerating.Pieces;
-using System.Runtime.CompilerServices;
 
 namespace Queene.Core.MovesGenerating.PiecesList
 {
@@ -17,7 +16,6 @@ namespace Queene.Core.MovesGenerating.PiecesList
             _bitBoardContext = bitBoardContext;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void MakeMove(ExtendedMove move)
         {
             if (move.MoveType == MoveTypeEnum.Promotion)
@@ -37,7 +35,6 @@ namespace Queene.Core.MovesGenerating.PiecesList
                 MakeCastle(move);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void UnmakeMove(ExtendedMove move)
         {
             if (move.MoveType == MoveTypeEnum.Promotion)
@@ -57,113 +54,130 @@ namespace Queene.Core.MovesGenerating.PiecesList
                 UnmakeCastle(move);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void MakeNoramlMove(ExtendedMove move)
         {
-            _pieceIndex = _bitBoardContext.PieceIndices[_bitBoardContext.Player.Current][move.From];
-            _bitBoardContext.PieceIndices[_bitBoardContext.Player.Current][move.From] = null;
-            _bitBoardContext.PieceIndices[_bitBoardContext.Player.Current][move.To] = _pieceIndex;
+            var player = _bitBoardContext.Player.Current;
 
-            _bitBoardContext.PieceTypeList[_bitBoardContext.Player.Current][(byte)move.PieceType].SetAtIndex(_pieceIndex.Index, move.To);
+            _pieceIndex = _bitBoardContext.PieceIndices[player][move.From];
+            _bitBoardContext.PieceIndices[player][move.From] = null;
+            _bitBoardContext.PieceIndices[player][move.To] = _pieceIndex;
+
+            var actualPieceType = _pieceIndex.PieceType;
+            _bitBoardContext.PieceTypeList[player][(byte)actualPieceType].SetAtIndex(_pieceIndex.Index, move.To);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void UnmakeNoramlMove(ExtendedMove move)
         {
-            _pieceIndex = _bitBoardContext.PieceIndices[_bitBoardContext.Player.Current][move.To];
-            _bitBoardContext.PieceIndices[_bitBoardContext.Player.Current][move.To] = null;
-            _bitBoardContext.PieceIndices[_bitBoardContext.Player.Current][move.From] = _pieceIndex;
+            var player = _bitBoardContext.Player.Current;
 
-            _bitBoardContext.PieceTypeList[_bitBoardContext.Player.Current][(byte)move.PieceType].SetAtIndex(_pieceIndex.Index, move.From);
+            _pieceIndex = _bitBoardContext.PieceIndices[player][move.To];
+            _bitBoardContext.PieceIndices[player][move.To] = null;
+            _bitBoardContext.PieceIndices[player][move.From] = _pieceIndex;
+
+            var actualPieceType = _pieceIndex.PieceType;
+            _bitBoardContext.PieceTypeList[player][(byte)actualPieceType].SetAtIndex(_pieceIndex.Index, move.From);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void MakeCapture(ExtendedMove move)
         {
-            _pieceIndex = _bitBoardContext.PieceIndices[_bitBoardContext.Player.Oponnent][move.To];
-            _square = _bitBoardContext.PieceTypeList[_bitBoardContext.Player.Oponnent][(byte)move.Captured.Value].RemoveAtIndex(_pieceIndex.Index);
-            _bitBoardContext.PieceIndices[_bitBoardContext.Player.Oponnent][_square] = _pieceIndex;
-            _bitBoardContext.PieceIndices[_bitBoardContext.Player.Oponnent][move.To] = null;
+            var opp = _bitBoardContext.Player.Oponnent;
+
+            _pieceIndex = _bitBoardContext.PieceIndices[opp][move.To];
+            var capturedType = _pieceIndex.PieceType;
+            _square = _bitBoardContext.PieceTypeList[opp][(byte)capturedType].RemoveAtIndex(_pieceIndex.Index);
+            _bitBoardContext.PieceIndices[opp][_square] = _pieceIndex;
+            _bitBoardContext.PieceIndices[opp][move.To] = null;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void UnmakeCapture(ExtendedMove move)
         {
-            _bitBoardContext.PieceTypeList[_bitBoardContext.Player.Oponnent][(byte)move.Captured.Value].Add(move.To);
-            var index = _bitBoardContext.PieceTypeList[_bitBoardContext.Player.Oponnent][(byte)move.Captured.Value].GetLastIndex();
-            _bitBoardContext.PieceIndices[_bitBoardContext.Player.Oponnent][move.To] = new PieceIndex(move.Captured.Value, index);
+            var opp = _bitBoardContext.Player.Oponnent;
+
+            _bitBoardContext.PieceTypeList[opp][(byte)move.Captured.Value].Add(move.To);
+            var index = _bitBoardContext.PieceTypeList[opp][(byte)move.Captured.Value].GetLastIndex();
+            _bitBoardContext.PieceIndices[opp][move.To] = new PieceIndex(move.Captured.Value, index);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void MakePromotionMove(ExtendedMove move)
         {
-            _pieceIndex = _bitBoardContext.PieceIndices[_bitBoardContext.Player.Current][move.From];
-            _bitBoardContext.PieceIndices[_bitBoardContext.Player.Current][move.From] = null;
-            _square = _bitBoardContext.PieceTypeList[_bitBoardContext.Player.Current][(byte)move.PieceType].RemoveAtIndex(_pieceIndex.Index);
-            _bitBoardContext.PieceIndices[_bitBoardContext.Player.Current][_square] = _pieceIndex; //ttt
+            var player = _bitBoardContext.Player.Current;
 
-            _bitBoardContext.PieceTypeList[_bitBoardContext.Player.Current][(byte)move.PromotedTo.Value].Add(move.To);
-            var index = _bitBoardContext.PieceTypeList[_bitBoardContext.Player.Current][(byte)move.PromotedTo.Value].GetLastIndex();
-            _bitBoardContext.PieceIndices[_bitBoardContext.Player.Current][move.To] = new PieceIndex(move.PromotedTo.Value, index);
+            _pieceIndex = _bitBoardContext.PieceIndices[player][move.From];
+            _bitBoardContext.PieceIndices[player][move.From] = null;
+
+            var pawnType = _pieceIndex.PieceType;
+            _square = _bitBoardContext.PieceTypeList[player][(byte)pawnType].RemoveAtIndex(_pieceIndex.Index);
+            _bitBoardContext.PieceIndices[player][_square] = _pieceIndex;
+
+            _bitBoardContext.PieceTypeList[player][(byte)move.PromotedTo.Value].Add(move.To);
+            var index = _bitBoardContext.PieceTypeList[player][(byte)move.PromotedTo.Value].GetLastIndex();
+            _bitBoardContext.PieceIndices[player][move.To] = new PieceIndex(move.PromotedTo.Value, index);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void UnmakePromotionMove(ExtendedMove move)
         {
-            _pieceIndex = _bitBoardContext.PieceIndices[_bitBoardContext.Player.Current][move.To];
-            _bitBoardContext.PieceIndices[_bitBoardContext.Player.Current][move.To] = null;
-            _square = _bitBoardContext.PieceTypeList[_bitBoardContext.Player.Current][(byte)move.PromotedTo.Value].RemoveAtIndex(_pieceIndex.Index);
-            _bitBoardContext.PieceIndices[_bitBoardContext.Player.Current][_square] = _pieceIndex; //ttt
+            var player = _bitBoardContext.Player.Current;
 
-            _bitBoardContext.PieceTypeList[_bitBoardContext.Player.Current][(byte)move.PieceType].Add(move.From);
-            var index = _bitBoardContext.PieceTypeList[_bitBoardContext.Player.Current][(byte)move.PieceType].GetLastIndex();
-            _bitBoardContext.PieceIndices[_bitBoardContext.Player.Current][move.From] = new PieceIndex(move.PieceType, index);
+            _pieceIndex = _bitBoardContext.PieceIndices[player][move.To];
+            _bitBoardContext.PieceIndices[player][move.To] = null;
+            _square = _bitBoardContext.PieceTypeList[player][(byte)move.PromotedTo.Value].RemoveAtIndex(_pieceIndex.Index);
+            _bitBoardContext.PieceIndices[player][_square] = _pieceIndex;
+
+            var pawnType = move.PieceType != PieceTypeEnum.Empty ? move.PieceType : PieceTypeEnum.Pawn;
+            _bitBoardContext.PieceTypeList[player][(byte)pawnType].Add(move.From);
+            var index = _bitBoardContext.PieceTypeList[player][(byte)pawnType].GetLastIndex();
+            _bitBoardContext.PieceIndices[player][move.From] = new PieceIndex(pawnType, index);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void MakeEnPassante(ExtendedMove move)
         {
+            var opp = _bitBoardContext.Player.Oponnent;
             var capturedSquare = _bitBoardContext.Player.Current == Player.White ? (byte)(move.To - 8) : (byte)(move.To + 8);
-            var pieceIndex = _bitBoardContext.PieceIndices[_bitBoardContext.Player.Oponnent][capturedSquare];
-            _bitBoardContext.PieceIndices[_bitBoardContext.Player.Oponnent][capturedSquare] = null;
-            _square = _bitBoardContext.PieceTypeList[_bitBoardContext.Player.Oponnent][(byte)move.Captured.Value].RemoveAtIndex(pieceIndex.Index);
-            _bitBoardContext.PieceIndices[_bitBoardContext.Player.Oponnent][_square] = pieceIndex;
+            var pieceIndex = _bitBoardContext.PieceIndices[opp][capturedSquare];
+
+            _bitBoardContext.PieceIndices[opp][capturedSquare] = null;
+
+            var capturedType = pieceIndex.PieceType;
+            _square = _bitBoardContext.PieceTypeList[opp][(byte)capturedType].RemoveAtIndex(pieceIndex.Index);
+            _bitBoardContext.PieceIndices[opp][_square] = pieceIndex;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void UnmakeEnPassante(ExtendedMove move)
         {
+            var opp = _bitBoardContext.Player.Oponnent;
             var capturedSquare = _bitBoardContext.Player.Current == Player.White ? (byte)(move.To - 8) : (byte)(move.To + 8);
 
-            _bitBoardContext.PieceTypeList[_bitBoardContext.Player.Oponnent][(byte)move.Captured.Value].Add(capturedSquare);
-            var index = _bitBoardContext.PieceTypeList[_bitBoardContext.Player.Oponnent][(byte)move.Captured.Value].GetLastIndex();
-            _bitBoardContext.PieceIndices[_bitBoardContext.Player.Oponnent][capturedSquare] = new PieceIndex(move.Captured.Value, index);
+            _bitBoardContext.PieceTypeList[opp][(byte)move.Captured.Value].Add(capturedSquare);
+            var index = _bitBoardContext.PieceTypeList[opp][(byte)move.Captured.Value].GetLastIndex();
+            _bitBoardContext.PieceIndices[opp][capturedSquare] = new PieceIndex(move.Captured.Value, index);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void MakeCastle(ExtendedMove move)
         {
-            var rookSrcSquare = move.IsCastleKingSideMove ? Rook.KingSideSourceSquare[_bitBoardContext.Player.Current] : Rook.QueenSideSourceSquare[_bitBoardContext.Player.Current];
-            var rookDstSquare = move.IsCastleKingSideMove ? Rook.KingSideDestinationSquare[_bitBoardContext.Player.Current] : Rook.QueenSideDestinationSquare[_bitBoardContext.Player.Current];
+            var player = _bitBoardContext.Player.Current;
+            var rookSrcSquare = move.IsCastleKingSideMove ? Rook.KingSideSourceSquare[player] : Rook.QueenSideSourceSquare[player];
+            var rookDstSquare = move.IsCastleKingSideMove ? Rook.KingSideDestinationSquare[player] : Rook.QueenSideDestinationSquare[player];
+            var pieceIndex = _bitBoardContext.PieceIndices[player][rookSrcSquare];
 
-            var pieceIndex = _bitBoardContext.PieceIndices[_bitBoardContext.Player.Current][rookSrcSquare];
-            _bitBoardContext.PieceIndices[_bitBoardContext.Player.Current][rookSrcSquare] = null;
-            _bitBoardContext.PieceIndices[_bitBoardContext.Player.Current][rookDstSquare] = pieceIndex;
+            _bitBoardContext.PieceIndices[player][rookSrcSquare] = null;
+            _bitBoardContext.PieceIndices[player][rookDstSquare] = pieceIndex;
 
-            _bitBoardContext.PieceTypeList[_bitBoardContext.Player.Current][(byte)PieceTypeEnum.Rook].SetAtIndex(pieceIndex.Index, rookDstSquare);
+            var rookType = pieceIndex.PieceType;
+            _bitBoardContext.PieceTypeList[player][(byte)rookType].SetAtIndex(pieceIndex.Index, rookDstSquare);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void UnmakeCastle(ExtendedMove move)
         {
-            var rookSrcSquare = move.IsCastleKingSideMove ? Rook.KingSideSourceSquare[_bitBoardContext.Player.Current] : Rook.QueenSideSourceSquare[_bitBoardContext.Player.Current];
-            var rookDstSquare = move.IsCastleKingSideMove ? Rook.KingSideDestinationSquare[_bitBoardContext.Player.Current] : Rook.QueenSideDestinationSquare[_bitBoardContext.Player.Current];
+            var player = _bitBoardContext.Player.Current;
+            var rookSrcSquare = move.IsCastleKingSideMove ? Rook.KingSideSourceSquare[player] : Rook.QueenSideSourceSquare[player];
+            var rookDstSquare = move.IsCastleKingSideMove ? Rook.KingSideDestinationSquare[player] : Rook.QueenSideDestinationSquare[player];
+            var pieceIndex = _bitBoardContext.PieceIndices[player][rookDstSquare];
 
-            var pieceIndex = _bitBoardContext.PieceIndices[_bitBoardContext.Player.Current][rookDstSquare];
-            _bitBoardContext.PieceIndices[_bitBoardContext.Player.Current][rookDstSquare] = null;
-            _bitBoardContext.PieceIndices[_bitBoardContext.Player.Current][rookSrcSquare] = pieceIndex;
+            _bitBoardContext.PieceIndices[player][rookDstSquare] = null;
+            _bitBoardContext.PieceIndices[player][rookSrcSquare] = pieceIndex;
 
-            _bitBoardContext.PieceTypeList[_bitBoardContext.Player.Current][(byte)PieceTypeEnum.Rook].SetAtIndex(pieceIndex.Index, rookSrcSquare);
+            var rookType = pieceIndex.PieceType;
+            _bitBoardContext.PieceTypeList[player][(byte)rookType].SetAtIndex(pieceIndex.Index, rookSrcSquare);
         }
     }
 }

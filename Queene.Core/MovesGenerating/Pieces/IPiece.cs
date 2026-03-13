@@ -8,7 +8,7 @@ namespace Queene.Core.MovesGenerating.Pieces
         PieceTypeEnum PieceType { get; }
 
         void GenerateMoves(MoveGenerationTypeEnum generationType);
-        void MakeMove(ExtendedMove move);
-        void UnmakeMove(ExtendedMove move);
+        void MakeMove(ref ExtendedMove move);
+        void UnmakeMove(ref ExtendedMove move);
     }
 }

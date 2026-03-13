@@ -6,7 +6,6 @@ using Queene.Core.MovesGenerating.Hashing;
 using Queene.Core.MovesGenerating.PiecesList;
 using Queene.Core.Utils;
 using QueeneEngine.Helpers.Bitwise;
-using System.Runtime.CompilerServices;
 
 namespace Queene.Core.MovesGenerating.Pieces
 {
@@ -20,7 +19,6 @@ namespace Queene.Core.MovesGenerating.Pieces
         {
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected void GenerateMoves(MagicResult[] magics, MoveGenerationTypeEnum generationType, SliderTypeEnum sliderType)
         {
             ulong attacks;
@@ -86,7 +84,6 @@ namespace Queene.Core.MovesGenerating.Pieces
             return SquaresBetweenMasksGeneratorHelper.MasksBeetwenSquaresRanksAndFiles[pinnerSquare][_bitBoardContext.PieceTypeList[_bitBoardContext.Player.Current][(byte)PieceTypeEnum.King].GetAtIndex(0)];
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ulong GetAttacks(byte square, ulong occupied, MagicResult[] magics)
         {
             occupied &= magics[square].Mask;
@@ -95,7 +92,6 @@ namespace Queene.Core.MovesGenerating.Pieces
             return magics[square].Attacks[occupied];
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ulong GetXRayAttacks(ulong occcupied, ulong blockers, byte square, MagicResult[] magics)
         {
             ulong attacks = GetAttacks(square, occcupied, magics);

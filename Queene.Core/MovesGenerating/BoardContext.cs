@@ -6,7 +6,6 @@ using Queene.Core.MovesGenerating.Pieces;
 using Queene.Core.MovesGenerating.PiecesList;
 using QueeneEngine.Helpers.Bitwise;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Queene.Core.MovesGenerating
@@ -103,27 +102,23 @@ namespace Queene.Core.MovesGenerating
 			}
 		}
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void SetAllCastlesAllowance(byte player, bool value)
 		{
 			CanCastle[player] = CanCastleKingSide[player] = CanCastleQueenSide[player] = value;
 		}
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void SetCastleAllowance(byte player, bool value)
         {
 			CanCastle[player] = value;
 		}
 
 		//Only when rook moved
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void SetKingSideCastleAllowance(byte player, bool value)
 		{
 			CanCastleKingSide[player] = value;
         }
 
 		//Only when rook moved
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void SetQueenSideCastleAllowance(byte player, bool value)
 		{
 			CanCastleQueenSide[player] = value;
@@ -150,7 +145,6 @@ namespace Queene.Core.MovesGenerating
 			}
 		}
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public PieceTypeEnum GetPieceType(int square, byte playerByte)
 		{
             var pieceIndex = PieceIndices[playerByte][square];
@@ -161,7 +155,6 @@ namespace Queene.Core.MovesGenerating
             return PieceTypeEnum.Empty;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public PieceTypeEnum? GetCapturedPieceType(int square, byte playerByte)
         {
             if (BitwiseHelper.IsSet(Pieces[playerByte][(byte)PieceTypeEnum.All], square))
@@ -170,7 +163,6 @@ namespace Queene.Core.MovesGenerating
             return null;
         }
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void SetOpponnentSliders()
 		{
 			OpponentRooksAndQueens = Pieces[Player.Oponnent][(byte)PieceTypeEnum.Rook] | Pieces[Player.Oponnent][(byte)PieceTypeEnum.Queen];

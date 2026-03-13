@@ -29,7 +29,7 @@ namespace Queene.Core.Tests.MakeUnmakeMove
             var move = _movesList.Get().First(m => m.GetFromSquare() == square && m.GetToSquare() == square + 8);
             var extMove = new ExtendedMove(move, _bitBoard.Context);
 
-            pawn.MakeMove(extMove);
+            pawn.MakeMove(ref extMove);
 
             // Assert
             extMove.Move.Should().BeEquivalentTo(move);
@@ -61,8 +61,8 @@ namespace Queene.Core.Tests.MakeUnmakeMove
             var move = _movesList.Get().First(m => m.GetFromSquare() == square && m.GetToSquare() == square + 8);
             var extMove = new ExtendedMove(move, _bitBoard.Context);
 
-            pawn.MakeMove(extMove);
-            pawn.UnmakeMove(extMove);
+            pawn.MakeMove(ref extMove);
+            pawn.UnmakeMove(ref extMove);
 
             // Assert
             extMove.Move.Should().BeEquivalentTo(move);
@@ -94,7 +94,7 @@ namespace Queene.Core.Tests.MakeUnmakeMove
             var move = _movesList.Get().First(m => m.GetFromSquare() == square && m.GetToSquare() == square + 16);
             var extMove = new ExtendedMove(move, _bitBoard.Context);
 
-            pawn.MakeMove(extMove);
+            pawn.MakeMove(ref extMove);
 
             // Assert
             extMove.Move.Should().BeEquivalentTo(move);
@@ -128,8 +128,8 @@ namespace Queene.Core.Tests.MakeUnmakeMove
             var move = _movesList.Get().First(m => m.GetFromSquare() == square && m.GetToSquare() == square + 16);
             var extMove = new ExtendedMove(move, _bitBoard.Context);
 
-            pawn.MakeMove(extMove);
-            pawn.UnmakeMove(extMove);
+            pawn.MakeMove(ref extMove);
+            pawn.UnmakeMove(ref extMove);
 
             // Assert
             extMove.Move.Should().BeEquivalentTo(move);
@@ -162,7 +162,7 @@ namespace Queene.Core.Tests.MakeUnmakeMove
             var move = _movesList.Get().First(m => m.GetFromSquare() == square && m.GetPromotionPieceType() == promotTo);
             var extMove = new ExtendedMove(move, _bitBoard.Context);
 
-            pawn.MakeMove(extMove);
+            pawn.MakeMove(ref extMove);
 
             // Assert
             extMove.Move.Should().BeEquivalentTo(move);
@@ -195,8 +195,8 @@ namespace Queene.Core.Tests.MakeUnmakeMove
             var move = _movesList.Get().First(m => m.GetFromSquare() == square && m.GetPromotionPieceType() == promotTo);
             var extMove = new ExtendedMove(move, _bitBoard.Context);
 
-            pawn.MakeMove(extMove);
-            pawn.UnmakeMove(extMove);
+            pawn.MakeMove(ref extMove);
+            pawn.UnmakeMove(ref extMove);
 
             // Assert
             extMove.Move.Should().BeEquivalentTo(move);
@@ -232,7 +232,7 @@ namespace Queene.Core.Tests.MakeUnmakeMove
             {
                 var extMove = new ExtendedMove(move, _bitBoard.Context);
 
-                pawn.MakeMove(extMove);
+                pawn.MakeMove(ref extMove);
 
                 // Assert
                 extMove.Move.Should().BeEquivalentTo(move);
@@ -250,7 +250,7 @@ namespace Queene.Core.Tests.MakeUnmakeMove
                 BitwiseHelper.IsSet(_bitBoard.Context.Pieces[(byte)PlayerEnum.White][(byte)promotTo], extMove.To).Should().BeTrue();
                 BitwiseHelper.IsSet(_bitBoard.Context.Pieces[(byte)PlayerEnum.Black][(byte)PieceTypeEnum.All], extMove.To).Should().BeFalse();
 
-                pawn.UnmakeMove(extMove);
+                pawn.UnmakeMove(ref extMove);
             }
         }
 
@@ -273,8 +273,8 @@ namespace Queene.Core.Tests.MakeUnmakeMove
             {
                 var extMove = new ExtendedMove(move, _bitBoard.Context);
 
-                pawn.MakeMove(extMove);
-                pawn.UnmakeMove(extMove);
+                pawn.MakeMove(ref extMove);
+                pawn.UnmakeMove(ref extMove);
 
                 // Assert
                 extMove.Move.Should().BeEquivalentTo(move);
@@ -310,7 +310,7 @@ namespace Queene.Core.Tests.MakeUnmakeMove
             var move = _movesList.Get().First(m => m.GetFromSquare() == square && m.IsEnPassantMove() == true);
             var extMove = new ExtendedMove(move, _bitBoard.Context);
 
-            pawn.MakeMove(extMove);
+            pawn.MakeMove(ref extMove);
 
             // Assert
             extMove.Move.Should().BeEquivalentTo(move);
@@ -345,8 +345,8 @@ namespace Queene.Core.Tests.MakeUnmakeMove
             var move = _movesList.Get().First(m => m.GetFromSquare() == square && m.IsEnPassantMove() == true);
             var extMove = new ExtendedMove(move, _bitBoard.Context);
 
-            pawn.MakeMove(extMove);
-            pawn.UnmakeMove(extMove);
+            pawn.MakeMove(ref extMove);
+            pawn.UnmakeMove(ref extMove);
 
             // Assert
             extMove.Move.Should().BeEquivalentTo(move);

@@ -41,14 +41,11 @@ namespace Quenee.ConsoleApp.Commands.DoMoveCommand
             {
                 var madeMove = _game.MakeMove(move);
 
-                if (madeMove != null)
-                {
-                    _logger.Log(LogLevel.Information, $"Move done \r\n");
-                    _logger.Log(LogLevel.Information, $"Fen: {_game.Context.ToString()}");
-                    _logger.Log(LogLevel.Information, $"Pieces: {_game.Context.PrintPieces()}");
-                    //_logger.Log(LogLevel.Information, $"Indexes: {_game.Context.PrintPiecesIndicies()} \r\n");
-                    _logger.Log(LogLevel.Information, $"Hash: {hash} => {_game.Context.Hash} \r\n \r\n");
-                }
+                _logger.Log(LogLevel.Information, $"Move done \r\n");
+                _logger.Log(LogLevel.Information, $"Fen: {_game.Context.ToString()}");
+                _logger.Log(LogLevel.Information, $"Pieces: {_game.Context.PrintPieces()}");
+                //_logger.Log(LogLevel.Information, $"Indexes: {_game.Context.PrintPiecesIndicies()} \r\n");
+                _logger.Log(LogLevel.Information, $"Hash: {hash} => {_game.Context.Hash} \r\n \r\n");
             }
 
             return new DoMoveCommandResponse();

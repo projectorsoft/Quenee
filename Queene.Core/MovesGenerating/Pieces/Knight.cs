@@ -4,8 +4,6 @@ using Queene.Core.Models;
 using Queene.Core.MovesGenerating.Hashing;
 using Queene.Core.MovesGenerating.PiecesList;
 using QueeneEngine.Engine.Magics;
-using System.Runtime.CompilerServices;
-using System.Threading;
 
 namespace Queene.Core.MovesGenerating.Pieces
 {
@@ -22,7 +20,6 @@ namespace Queene.Core.MovesGenerating.Pieces
         {
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GenerateMoves(MoveGenerationTypeEnum generationType)
         {
             for (int i = 0; i < _bitBoardContext.PieceTypeList[_bitBoardContext.Player.Current][(byte)PieceType].Count(); i++)

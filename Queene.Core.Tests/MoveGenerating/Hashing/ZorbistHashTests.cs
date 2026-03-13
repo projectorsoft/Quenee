@@ -69,8 +69,8 @@ namespace Queene.Core.Tests.MoveGenerating.Hashing
             var move = _movesList.Get().First(m => m.GetFromSquare() == square && m.GetToSquare() == toSquare);
             var extMove = new ExtendedMove(move, _bitBoard.Context);
 
-            piece.MakeMove(extMove);
-            piece.UnmakeMove(extMove);
+            piece.MakeMove(ref extMove);
+            piece.UnmakeMove(ref extMove);
 
             // Assert
             _bitBoard.Context.Hash.Should().Be(hash);
@@ -95,8 +95,8 @@ namespace Queene.Core.Tests.MoveGenerating.Hashing
             var move = _movesList.Get().First(m => m.GetFromSquare() == square && m.GetToSquare() == toSquare);
             var extMove = new ExtendedMove(move, _bitBoard.Context);
 
-            piece.MakeMove(extMove);
-            piece.UnmakeMove(extMove);
+            piece.MakeMove(ref extMove);
+            piece.UnmakeMove(ref extMove);
 
             // Assert
             _bitBoard.Context.Hash.Should().Be(hash);
@@ -119,8 +119,8 @@ namespace Queene.Core.Tests.MoveGenerating.Hashing
             var move = _movesList.Get().First(m => m.GetFromSquare() == square && m.GetToSquare() == toSquare);
             var extMove = new ExtendedMove(move, _bitBoard.Context);
 
-            piece.MakeMove(extMove);
-            piece.UnmakeMove(extMove);
+            piece.MakeMove(ref extMove);
+            piece.UnmakeMove(ref extMove);
 
             // Assert
             _bitBoard.Context.Hash.Should().Be(hash);
@@ -147,8 +147,8 @@ namespace Queene.Core.Tests.MoveGenerating.Hashing
             var move = _movesList.Get().First(m => m.GetFromSquare() == square && m.GetToSquare() == toSquare);
             var extMove = new ExtendedMove(move, _bitBoard.Context);
 
-            piece.MakeMove(extMove);
-            piece.UnmakeMove(extMove);
+            piece.MakeMove(ref extMove);
+            piece.UnmakeMove(ref extMove);
 
             // Assert
             _bitBoard.Context.Hash.Should().Be(hash);

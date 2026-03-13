@@ -11,7 +11,6 @@ using QueeneEngine.Helpers.Bitwise;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Runtime.CompilerServices;
 
 namespace Queene.Core.MovesGenerating
 {
@@ -160,21 +159,18 @@ namespace Queene.Core.MovesGenerating
 				| _context.Pieces[Player.Black][(byte)PieceTypeEnum.Rook];
 		}
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void SetupCheckingSquaresAndAttackers(Player player, byte kingSquare)
 		{
 			_context.CheckedSquares = GetCheckedSquaresAndAttackers(player, kingSquare, out var attackers);
 			_context.Attackers = attackers;
 		}
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void SetupPinnedPiecesAndPinners(Player player, byte kingSquare)
 		{
 			_context.PinnedSquares = GetPinnedPieces(player, kingSquare, out ulong pinners);
 			_context.Pinners = pinners;
 		}
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool IsSquareAttacked(BoardContext context, Player player, byte square)
 		{
 			ulong attacked;
@@ -253,7 +249,6 @@ namespace Queene.Core.MovesGenerating
 			return result;
 		}
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private ulong GetPinnedPieces(Player player, byte kingSquare, out ulong pinners)
 		{
 			ulong pinnedSquares = 0;

@@ -6,7 +6,6 @@ using Queene.Core.MovesGenerating.PiecesList;
 using Queene.Core.Utils;
 using QueeneEngine.Engine.Magics;
 using QueeneEngine.Helpers.Bitwise;
-using System.Runtime.CompilerServices;
 
 namespace Queene.Core.MovesGenerating.Pieces
 {
@@ -26,7 +25,6 @@ namespace Queene.Core.MovesGenerating.Pieces
         {
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GenerateMoves(MoveGenerationTypeEnum generationType)
         {
             GenerateEnPassant();
@@ -99,8 +97,7 @@ namespace Queene.Core.MovesGenerating.Pieces
             }
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void MakeMove(ExtendedMove move)
+        public override void MakeMove(ref ExtendedMove move)
         {
             //enPassant
             if (move.MoveType == MoveTypeEnum.EnPassante)
@@ -112,13 +109,12 @@ namespace Queene.Core.MovesGenerating.Pieces
                 //ComputeHash(move);
             }
 
-            base.MakeMove(move);
+            base.MakeMove(ref move);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void UnmakeMove(ExtendedMove move)
+        public override void UnmakeMove(ref ExtendedMove move)
         {
-            base.UnmakeMove(move);
+            base.UnmakeMove(ref move);
 
             //enPassant
             if (move.MoveType == MoveTypeEnum.EnPassante)
@@ -131,15 +127,14 @@ namespace Queene.Core.MovesGenerating.Pieces
             }
         }
 
-        private void ComputeHash(ExtendedMove move)
-        {
-            if (_bitBoardContext.Player.Current == Player.White)
-                _bitBoardContext.Hash ^= _zorbistHash.EnPassante[Player.White][move.To - 40];
-            else
-                _bitBoardContext.Hash ^= _zorbistHash.EnPassante[Player.Black][move.To - 16];
-        }
+        //private void ComputeHash(ExtendedMove move)
+        //{
+        //    if (_bitBoardContext.Player.Current == Player.White)
+        //        _bitBoardContext.Hash ^= _zorbistHash.EnPassante[Player.White][move.To - 40];
+        //    else
+        //        _bitBoardContext.Hash ^= _zorbistHash.EnPassante[Player.Black][move.To - 16];
+        //}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void Generate(MoveGenerationTypeEnum generationType, ulong moves, ulong captures, byte square)
         {
             if (generationType == MoveGenerationTypeEnum.All)
@@ -156,7 +151,6 @@ namespace Queene.Core.MovesGenerating.Pieces
                 AddMoves(captures, square, MoveTypeEnum.Move);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void GeneratePromotions(ulong mask, byte square)
         {
             byte toSquare;

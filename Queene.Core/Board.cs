@@ -8,7 +8,6 @@ using Queene.Core.MovesGenerating.Hashing;
 using Queene.Core.MovesGenerating.Pieces;
 using Queene.Core.MovesGenerating.PiecesList;
 using QueeneEngine.Helpers.Bitwise;
-using System.Runtime.CompilerServices;
 
 namespace Queene.Core
 {
@@ -46,7 +45,6 @@ namespace Queene.Core
             _movesList.Clear();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Move[] GenerateMoves(MoveGenerationTypeEnum generationType = MoveGenerationTypeEnum.All)
         {
             //if (_movesCache.TryGetValue(_bitBoard.Context.Hash, out Move[] cachedMoves))
@@ -81,7 +79,6 @@ namespace Queene.Core
             return _movesList.Get();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ExtendedMove MakeMove(Move move)
         {
             var extMove = new ExtendedMove(move, _bitBoard.Context);
@@ -89,7 +86,7 @@ namespace Queene.Core
             var oldPlayer = _bitBoard.Context.Player.Current;
             var oldEnPassant = _bitBoard.Context.EnPassantSquare;
 
-            _pieces[(byte)extMove.PieceType].MakeMove(extMove);
+            _pieces[(byte)extMove.PieceType].MakeMove(ref extMove);
 
             if (oldEnPassant.HasValue)
             {
@@ -111,7 +108,6 @@ namespace Queene.Core
             return extMove;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void UnmakeMove(ExtendedMove extMove)
         {
             var currentPlayer = _bitBoard.Context.Player.Current;
@@ -132,7 +128,7 @@ namespace Queene.Core
                 _bitBoard.Context.Hash ^= _zorbistHash.EnPassante[_bitBoard.Context.Player.Current][idx];
             }
 
-            _pieces[(byte)extMove.PieceType].UnmakeMove(extMove);
+            _pieces[(byte)extMove.PieceType].UnmakeMove(ref extMove);
         }
 
         public string GetFen()

@@ -3,7 +3,6 @@ using Queene.Core.Models;
 using Queene.Core.MovesGenerating.Hashing;
 using Queene.Core.MovesGenerating.PiecesList;
 using QueeneEngine.Engine.Magics;
-using System.Runtime.CompilerServices;
 
 namespace Queene.Core.MovesGenerating.Pieces
 {
@@ -20,7 +19,6 @@ namespace Queene.Core.MovesGenerating.Pieces
         {
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GenerateMoves(MoveGenerationTypeEnum generationType)
         {
             GenerateMoves(MovesContainer.BishopMagics, generationType, SliderTypeEnum.Bishop);

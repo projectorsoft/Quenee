@@ -4,7 +4,6 @@ using Queene.Core.Models;
 using Queene.Core.MovesGenerating.Hashing;
 using Queene.Core.MovesGenerating.PiecesList;
 using QueeneEngine.Helpers.Bitwise;
-using System.Runtime.CompilerServices;
 
 namespace Queene.Core.MovesGenerating.Pieces
 {
@@ -39,8 +38,7 @@ namespace Queene.Core.MovesGenerating.Pieces
             _bitBoardContext.InitPiecesList(PlayerEnum.Black, PieceType);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual void MakeMove(ExtendedMove move)
+        public virtual void MakeMove(ref ExtendedMove move)
         {
             //remove piece from source square
             _bitBoardContext.Pieces[_bitBoardContext.Player.Current][(byte)PieceType] ^= Powers.powersOfTwo[move.From];
@@ -82,8 +80,7 @@ namespace Queene.Core.MovesGenerating.Pieces
             _piecesListService.MakeMove(move);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual void UnmakeMove(ExtendedMove move)
+        public virtual void UnmakeMove(ref ExtendedMove move)
         {
             _bitBoardContext.EnPassantSquare = move.EnPassanteSquare;
 
@@ -122,7 +119,6 @@ namespace Queene.Core.MovesGenerating.Pieces
             _piecesListService.UnmakeMove(move);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected void AddMoves(ulong mask, byte fromSquare, MoveTypeEnum moveType, PieceTypeEnum promotionPieceType = PieceTypeEnum.Knight)
         {
             while (mask > 0)

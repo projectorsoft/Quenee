@@ -5,7 +5,6 @@ using Queene.Core.MovesGenerating.Hashing;
 using Queene.Core.MovesGenerating.PiecesList;
 using QueeneEngine.Engine.Magics;
 using QueeneEngine.Helpers.Bitwise;
-using System.Runtime.CompilerServices;
 
 namespace Queene.Core.MovesGenerating.Pieces
 {
@@ -37,7 +36,6 @@ namespace Queene.Core.MovesGenerating.Pieces
         {
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GenerateMoves(MoveGenerationTypeEnum generationType)
         {
             var square = Square;
@@ -58,12 +56,11 @@ namespace Queene.Core.MovesGenerating.Pieces
             AddMoves(_moves | _captures, square);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void MakeMove(ExtendedMove move)
+        public override void MakeMove(ref ExtendedMove move)
         {
             if (move.MoveType == MoveTypeEnum.Castle)
             {
-                MakeUnmakeCastleMove(move);
+                MakeUnmakeCastleMove(ref move);
 
                 if (move.IsCastleKingSideMove)
                     _bitBoardContext.SetKingSideCastleAllowance(_bitBoardContext.Player.Current, false);
@@ -89,17 +86,16 @@ namespace Queene.Core.MovesGenerating.Pieces
 
             _movesCounter[_bitBoardContext.Player.Current]++;
 
-            base.MakeMove(move);
+            base.MakeMove(ref move);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void UnmakeMove(ExtendedMove move)
+        public override void UnmakeMove(ref ExtendedMove move)
         {
             _movesCounter[_bitBoardContext.Player.Current]--;
 
             if (move.MoveType == MoveTypeEnum.Castle)
             {
-                MakeUnmakeCastleMove(move);
+                MakeUnmakeCastleMove(ref move);
 
                 if (move.IsCastleKingSideMove)
                     _bitBoardContext.SetKingSideCastleAllowance(_bitBoardContext.Player.Current, true);
@@ -119,11 +115,10 @@ namespace Queene.Core.MovesGenerating.Pieces
             if (move.CastleBreak)
                 _bitBoardContext.CanCastle[_bitBoardContext.Player.Current] = true;
 
-            base.UnmakeMove(move);
+            base.UnmakeMove(ref move);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void MakeUnmakeCastleMove(ExtendedMove move)
+        private void MakeUnmakeCastleMove(ref ExtendedMove move)
         {
             if (move.IsCastleKingSideMove)
             {

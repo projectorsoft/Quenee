@@ -4,7 +4,6 @@ using Queene.Core.MovesGenerating.Hashing;
 using Queene.Core.MovesGenerating.PiecesList;
 using QueeneEngine.Engine.Magics;
 using QueeneEngine.Helpers.Bitwise;
-using System.Runtime.CompilerServices;
 
 namespace Queene.Core.MovesGenerating.Pieces
 {
@@ -26,14 +25,12 @@ namespace Queene.Core.MovesGenerating.Pieces
         {
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GenerateMoves(MoveGenerationTypeEnum generationType)
         {
             GenerateMoves(MovesContainer.RookMagics, generationType, SliderTypeEnum.Rook);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void MakeMove(ExtendedMove move)
+        public override void MakeMove(ref ExtendedMove move)
         {
             if (_bitBoardContext.CanCastle[_bitBoardContext.Player.Current])
             {
@@ -51,11 +48,10 @@ namespace Queene.Core.MovesGenerating.Pieces
                 }
             }
 
-            base.MakeMove(move);
+            base.MakeMove(ref move);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void UnmakeMove(ExtendedMove move)
+        public override void UnmakeMove(ref ExtendedMove move)
         {
             if (move.KingSideCastleBreak)
             {
@@ -68,7 +64,7 @@ namespace Queene.Core.MovesGenerating.Pieces
                 _bitBoardContext.Hash ^= _zorbistHash.QueenSideCastle[_bitBoardContext.Player.Current];
             }
 
-            base.UnmakeMove(move);
+            base.UnmakeMove(ref move);
         }
 
         public static bool IsRookOnKingSideInitialPosition(BoardContext bitBoardContext)

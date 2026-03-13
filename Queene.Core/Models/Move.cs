@@ -1,7 +1,6 @@
 ﻿using Queene.Core.Consts;
 using Queene.Core.Enums;
 using System;
-using System.Runtime.CompilerServices;
 
 namespace Queene.Core.Models
 {

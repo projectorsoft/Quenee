@@ -22,29 +22,44 @@ namespace Queene.Core.MovesGenerating.Pieces
 
         public void GenerateMoves(MoveGenerationTypeEnum generationType)
         {
-            for (int i = 0; i < _bitBoardContext.PieceTypeList[_bitBoardContext.Player.Current][(byte)PieceType].Count(); i++)
+            var player = _bitBoardContext.Player.Current;
+            var opp = _bitBoardContext.Player.Oponnent;
+            var knightList = _bitBoardContext.PieceTypeList[player][(byte)PieceType];
+            var count = knightList.Count();
+            var occupied = _bitBoardContext.OccupiedSquares;
+            var empty = _bitBoardContext.EmptySquares;
+            var attackers = _bitBoardContext.Attackers;
+            var checkedSquares = _bitBoardContext.CheckedSquares;
+            var pinnedSquares = _bitBoardContext.PinnedSquares;
+            var oppAll = _bitBoardContext.Pieces[opp][(byte)PieceTypeEnum.All];
+
+            for (int i = 0; i < count; i++)
             {
-                _moves = 0;
-                _square = _bitBoardContext.PieceTypeList[_bitBoardContext.Player.Current][(byte)PieceType].GetAtIndex(i);
+                var square = knightList.GetAtIndex(i);
 
+                var attacks = MovesContainer.KnightMoves[square];
+
+                ulong movesLocal = 0;
                 if (generationType == MoveGenerationTypeEnum.All)
-                    _moves = MovesContainer.KnightMoves[_square] & _bitBoardContext.EmptySquares;
+                    movesLocal = attacks & empty;
 
-                _captures = MovesContainer.KnightMoves[_square] & _bitBoardContext.Pieces[_bitBoardContext.Player.Oponnent][(byte)PieceTypeEnum.All];
+                ulong capturesLocal = attacks & oppAll;
 
-                if (_bitBoardContext.Attackers != 0)
+                if (attackers != 0)
                 {
-                    _moves &= _bitBoardContext.CheckedSquares;
-                    _captures &= _bitBoardContext.Attackers;
+                    movesLocal &= checkedSquares;
+                    capturesLocal &= attackers;
                 }
 
-                if ((_bitBoardContext.PinnedSquares & Powers.powersOfTwo[_square]) != 0)
+                if ((pinnedSquares & Powers.powersOfTwo[square]) != 0)
                 {
-                    _moves = 0;
-                    _captures = 0;
+                    movesLocal = 0;
+                    capturesLocal = 0;
                 }
 
-                AddMoves(_moves | _captures, _square, MoveTypeEnum.Move);
+                var combined = movesLocal | capturesLocal;
+                if (combined != 0)
+                    AddMoves(combined, (byte)square, MoveTypeEnum.Move);
             }
         }
     }

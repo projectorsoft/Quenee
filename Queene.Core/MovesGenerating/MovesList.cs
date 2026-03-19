@@ -9,7 +9,7 @@ namespace Queene.Core.MovesGenerating
 		private Move[] _moves;
 		private int _count;
 
-		public int Count => _count;
+        public int Count => _count;
 
         public MovesList()
 		{
@@ -32,7 +32,13 @@ namespace Queene.Core.MovesGenerating
 
 		public Move[] Get()
 		{
-			Span<Move> span = new Span<Move>(_moves);
+            if (_count == 0)
+                return Array.Empty<Move>();
+
+            if (_count == _moves.Length)
+                return _moves;
+
+            Span<Move> span = new Span<Move>(_moves);
 
             return span.Slice(0, _count).ToArray();
 		}

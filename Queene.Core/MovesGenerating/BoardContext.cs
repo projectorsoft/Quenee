@@ -165,8 +165,9 @@ namespace Queene.Core.MovesGenerating
 
 		public void SetOpponnentSliders()
 		{
-			OpponentRooksAndQueens = Pieces[Player.Oponnent][(byte)PieceTypeEnum.Rook] | Pieces[Player.Oponnent][(byte)PieceTypeEnum.Queen];
-			OpponentBishopsAndQueens = Pieces[Player.Oponnent][(byte)PieceTypeEnum.Bishop] | Pieces[Player.Oponnent][(byte)PieceTypeEnum.Queen];
+			var queens = Pieces[Player.Oponnent][(byte)PieceTypeEnum.Queen];
+            OpponentRooksAndQueens = Pieces[Player.Oponnent][(byte)PieceTypeEnum.Rook] | queens;
+			OpponentBishopsAndQueens = Pieces[Player.Oponnent][(byte)PieceTypeEnum.Bishop] | queens;
 		}
 
 		public string PrintPieces()

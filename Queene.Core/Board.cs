@@ -7,7 +7,7 @@ using Queene.Core.MovesGenerating;
 using Queene.Core.MovesGenerating.Hashing;
 using Queene.Core.MovesGenerating.Pieces;
 using Queene.Core.MovesGenerating.PiecesList;
-using QueeneEngine.Helpers.Bitwise;
+using System.Numerics;
 
 namespace Queene.Core
 {
@@ -47,24 +47,25 @@ namespace Queene.Core
 
         public Move[] GenerateMoves(MoveGenerationTypeEnum generationType = MoveGenerationTypeEnum.All)
         {
-            //if (_movesCache.TryGetValue(_bitBoard.Context.Hash, out Move[] cachedMoves))
-            //    return cachedMoves;
+            var ctx = _bitBoard.Context;
+            var movesList = _movesList;
 
-            _movesList.Clear();
-            _bitBoard.Context.SetOpponnentSliders();
+            movesList.Clear();
+            ctx.SetOpponnentSliders();
 
             var king = (King)_pieces[(byte)PieceTypeEnum.King];
 
-            _bitBoard.SetupCheckingSquaresAndAttackers(_bitBoard.Context.Player, king.Square);
+            _bitBoard.SetupCheckingSquaresAndAttackers(ctx.Player, king.Square);
 
             king.GenerateMoves(generationType);
 
-            bool doubleCheck = _bitBoard.Context.Attackers > 0 
-                && BitwiseHelper.IsMoreThanOneSetBits(_bitBoard.Context.Attackers);
+            var attackers = ctx.Attackers;
+            bool doubleCheck = attackers != 0 && BitOperations.PopCount(attackers) > 1;
 
             if (!doubleCheck)
             {
-                _bitBoard.SetupPinnedPiecesAndPinners(_bitBoard.Context.Player, king.Square);
+                _bitBoard.SetupPinnedPiecesAndPinners(ctx.Player, king.Square);
+
                 _pieces[(byte)PieceTypeEnum.Pawn].GenerateMoves(generationType);
                 _pieces[(byte)PieceTypeEnum.Rook].GenerateMoves(generationType);
                 _pieces[(byte)PieceTypeEnum.Knight].GenerateMoves(generationType);
@@ -72,11 +73,7 @@ namespace Queene.Core
                 _pieces[(byte)PieceTypeEnum.Queen].GenerateMoves(generationType);
             }
 
-            //var moves = _movesList.Get();
-            //_movesCache.Set(_bitBoard.Context.Hash, moves, new MemoryCacheEntryOptions { Priority = CacheItemPriority.Low });
-
-            //return moves;
-            return _movesList.Get();
+            return movesList.Get();
         }
 
         public ExtendedMove MakeMove(Move move)

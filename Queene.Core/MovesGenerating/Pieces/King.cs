@@ -188,18 +188,10 @@ namespace Queene.Core.MovesGenerating.Pieces
             _bitBoardContext.OccupiedSquares ^= Powers.powersOfTwo[Square];
         }
 
-        /// <summary>
-        /// Checks if castling squares are under attack
-        /// </summary>
-        /// <param name="castlingSquaresMask">Mask with squares available in castling type</param>
-        /// <returns>True if one of squares is under attack</returns>
         private bool AreCastlingSquaresUnderAttack(byte[] castlingSquares)
         {
-            //if (_bitBoardContext.Attackers > 0)
-            //    return true;
-
             if (BitBoard.IsSquareAttacked(_bitBoardContext, _bitBoardContext.Player, Square))
-                    return true;
+                return true;
 
             for (byte i = 0; i < castlingSquares.Length; i++)
             {
@@ -210,11 +202,6 @@ namespace Queene.Core.MovesGenerating.Pieces
             return false;
         }
 
-        /// <summary>
-        /// Checks if castling squares are occupied by other pieces
-        /// </summary>
-        /// <param name="castlingSquaresMask">Mask with squares available in castling type</param>
-        /// <returns>True if one of squares is occupied by other pieces</returns>
         private bool AreCastlingSquaresOccupied(ulong castlingSquaresMask)
         {
             return (castlingSquaresMask & _bitBoardContext.OccupiedSquares) != 0;

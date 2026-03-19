@@ -29,111 +29,86 @@ namespace Queene.Core.MovesGenerating.Pieces
         {
             GenerateEnPassant();
 
-            for (int i = 0; i < _bitBoardContext.PieceTypeList[_bitBoardContext.Player.Current][(byte)PieceTypeEnum.Pawn].Count(); i++)
+            var player = _bitBoardContext.Player.Current;
+            var opp = _bitBoardContext.Player.Oponnent;
+
+            var pawnList = _bitBoardContext.PieceTypeList[player][(byte)PieceTypeEnum.Pawn];
+            var pawnCount = pawnList.Count();
+            var occupied = _bitBoardContext.OccupiedSquares;
+            var empty = _bitBoardContext.EmptySquares;
+            var kingSquare = _bitBoardContext.PieceTypeList[player][(byte)PieceTypeEnum.King].GetAtIndex(0);
+            var pinnedSquares = _bitBoardContext.PinnedSquares;
+            var pinnersAll = _bitBoardContext.Pinners;
+            var attackers = _bitBoardContext.Attackers;
+            var checkedSquares = _bitBoardContext.CheckedSquares;
+
+            var isWhite = player == Player.White;
+            var pawnMoves = isWhite ? MovesContainer.PawnWhiteMoves : MovesContainer.PawnBlackMoves;
+            var pawnCaptures = isWhite ? MovesContainer.PawnWhiteCaptures : MovesContainer.PawnBlackCaptures;
+            var forwardSquares = isWhite ? BoardConsts.SQUARES_FORWARD : BoardConsts.SQUARES_BACKWARD;
+
+            for (int i = 0; i < pawnCount; i++)
             {
                 _moves = 0;
-                _square = _bitBoardContext.PieceTypeList[_bitBoardContext.Player.Current][(byte)PieceTypeEnum.Pawn].GetAtIndex(i);
+                _captures = 0;
 
-                if (_bitBoardContext.Player.Current == Player.White)
+                _square = pawnList.GetAtIndex(i);
+
+                if (generationType == MoveGenerationTypeEnum.All)
                 {
-                    if (generationType == MoveGenerationTypeEnum.All 
-                        && !BitwiseHelper.IsSet(_bitBoardContext.OccupiedSquares, BoardConsts.SQUARES_FORWARD[_square]))
-                        _moves = MovesContainer.PawnWhiteMoves[_square] & _bitBoardContext.EmptySquares;
-
-                    _captures = MovesContainer.PawnWhiteCaptures[_square] & _bitBoardContext.Pieces[_bitBoardContext.Player.Oponnent][(byte)PieceTypeEnum.All];
-                }
-                else
-                {
-                    if (generationType == MoveGenerationTypeEnum.All 
-                        && !BitwiseHelper.IsSet(_bitBoardContext.OccupiedSquares, BoardConsts.SQUARES_BACKWARD[_square]))
-                        _moves = MovesContainer.PawnBlackMoves[_square] & _bitBoardContext.EmptySquares;
-
-                    _captures = MovesContainer.PawnBlackCaptures[_square] & _bitBoardContext.Pieces[_bitBoardContext.Player.Oponnent][(byte)PieceTypeEnum.All];
+                    var fwdSq = forwardSquares[_square];
+                    if (!BitwiseHelper.IsSet(occupied, fwdSq))
+                        _moves = pawnMoves[_square] & empty;
                 }
 
-                if (_bitBoardContext.Attackers != 0)
+                _captures = pawnCaptures[_square] & _bitBoardContext.Pieces[opp][(byte)PieceTypeEnum.All];
+
+                if (attackers != 0)
                 {
-                    _moves &= _bitBoardContext.CheckedSquares;
-                    _captures &= _bitBoardContext.Attackers;
+                    _moves &= checkedSquares;
+                    _captures &= attackers;
                 }
 
-                if ((_moves | _captures) != 0)
+                if ((pinnedSquares & Powers.powersOfTwo[_square]) != 0)
                 {
-                    if ((_bitBoardContext.PinnedSquares & Powers.powersOfTwo[_square]) != 0)
+                    var pinners = pinnersAll;
+                    while (pinners != 0)
                     {
-                        var pinners = _bitBoardContext.Pinners;
+                        var pinnerSquare = BitwiseHelper.FastBitscanRevers(pinners);
+                        pinners ^= Powers.powersOfTwo[pinnerSquare];
 
-                        while (pinners != 0)
+                        var masksBetween = SquaresBetweenMasksGeneratorHelper.MasksBeetwenSquaresRanksAndFiles[pinnerSquare][kingSquare];
+                        if ((masksBetween & Powers.powersOfTwo[_square]) != 0)
                         {
-                            var pinnerSquare = BitwiseHelper.FastBitscanRevers(pinners);
-                            pinners ^= Powers.powersOfTwo[pinnerSquare];
+                            _moves &= masksBetween;
+                            _captures = 0;
+                            break;
+                        }
 
-                            var masksBetweenSquares = SquaresBetweenMasksGeneratorHelper.MasksBeetwenSquaresRanksAndFiles[pinnerSquare][_bitBoardContext.PieceTypeList[_bitBoardContext.Player.Current][(byte)PieceTypeEnum.King].GetAtIndex(0)];
-
-                            if ((masksBetweenSquares & Powers.powersOfTwo[_square]) != 0)
-                            {
-                                _moves &= masksBetweenSquares;
-                                _captures = 0;
-
-                                break;
-                            }
-                            else
-                            {
-                                masksBetweenSquares = SquaresBetweenMasksGeneratorHelper.MasksBeetwenSquaresDiagonals[pinnerSquare][_bitBoardContext.PieceTypeList[_bitBoardContext.Player.Current][(byte)PieceTypeEnum.King].GetAtIndex(0)];
-
-                                if ((masksBetweenSquares & Powers.powersOfTwo[_square]) != 0)
-                                {
-                                    _moves = 0;
-                                    _captures &= _bitBoardContext.Pinners & Powers.powersOfTwo[pinnerSquare];
-
-                                    break;
-                                }
-                            }
+                        masksBetween = SquaresBetweenMasksGeneratorHelper.MasksBeetwenSquaresDiagonals[pinnerSquare][kingSquare];
+                        if ((masksBetween & Powers.powersOfTwo[_square]) != 0)
+                        {
+                            _moves = 0;
+                            _captures &= _bitBoardContext.Pinners & Powers.powersOfTwo[pinnerSquare];
+                            break;
                         }
                     }
                 }
 
-                Generate(generationType, _moves, _captures, _square);
+                if ((_moves | _captures) != 0)
+                    Generate(generationType, _moves, _captures, _square);
             }
         }
 
         public override void MakeMove(ref ExtendedMove move)
         {
-            //enPassant
-            if (move.MoveType == MoveTypeEnum.EnPassante)
-            {
-                //var capturedSquare = _bitBoardContext.Player.Current == Player.White ? BoardConsts.SQUARES_BACKWARD[move.To] : BoardConsts.SQUARES_FORWARD[move.To];
-                //_bitBoardContext.Pieces[_bitBoardContext.Player.Oponnent][(byte)PieceTypeEnum.Pawn] ^= Powers.powersOfTwo[capturedSquare];
-                //_bitBoardContext.Pieces[_bitBoardContext.Player.Oponnent][(byte)PieceTypeEnum.All] ^= Powers.powersOfTwo[capturedSquare];
-
-                //ComputeHash(move);
-            }
-
             base.MakeMove(ref move);
         }
 
         public override void UnmakeMove(ref ExtendedMove move)
         {
             base.UnmakeMove(ref move);
-
-            //enPassant
-            if (move.MoveType == MoveTypeEnum.EnPassante)
-            {
-                //var capturedSquare = _bitBoardContext.Player.Current == Player.White ? BoardConsts.SQUARES_BACKWARD[move.To] : BoardConsts.SQUARES_FORWARD[move.To];
-                //_bitBoardContext.Pieces[_bitBoardContext.Player.Oponnent][(byte)PieceTypeEnum.Pawn] |= Powers.powersOfTwo[capturedSquare];
-                //_bitBoardContext.Pieces[_bitBoardContext.Player.Oponnent][(byte)PieceTypeEnum.All] |= Powers.powersOfTwo[capturedSquare];
-
-                //ComputeHash(move);
-            }
         }
-
-        //private void ComputeHash(ExtendedMove move)
-        //{
-        //    if (_bitBoardContext.Player.Current == Player.White)
-        //        _bitBoardContext.Hash ^= _zorbistHash.EnPassante[Player.White][move.To - 40];
-        //    else
-        //        _bitBoardContext.Hash ^= _zorbistHash.EnPassante[Player.Black][move.To - 16];
-        //}
 
         private void Generate(MoveGenerationTypeEnum generationType, ulong moves, ulong captures, byte square)
         {
@@ -153,71 +128,85 @@ namespace Queene.Core.MovesGenerating.Pieces
 
         private void GeneratePromotions(ulong mask, byte square)
         {
-            byte toSquare;
+            var movesList = _movesList;
+            var localFrom = square;
 
-            while (mask > 0)
+            while (mask != 0)
             {
-                toSquare = BitwiseHelper.FastBitScanForward(mask);
+                var sq = BitwiseHelper.FastBitScanForward(mask);
 
-                _movesList.Add(new Move(square, toSquare, MoveTypeEnum.Promotion, PieceTypeEnum.Knight));
-                _movesList.Add(new Move(square, toSquare, MoveTypeEnum.Promotion, PieceTypeEnum.Bishop));
-                _movesList.Add(new Move(square, toSquare, MoveTypeEnum.Promotion, PieceTypeEnum.Rook));
-                _movesList.Add(new Move(square, toSquare, MoveTypeEnum.Promotion, PieceTypeEnum.Queen));
+                movesList.Add(new Move(square, sq, MoveTypeEnum.Promotion, PieceTypeEnum.Knight));
+                movesList.Add(new Move(square, sq, MoveTypeEnum.Promotion, PieceTypeEnum.Bishop));
+                movesList.Add(new Move(square, sq, MoveTypeEnum.Promotion, PieceTypeEnum.Rook));
+                movesList.Add(new Move(square, sq, MoveTypeEnum.Promotion, PieceTypeEnum.Queen));
 
-                mask ^= Powers.powersOfTwo[toSquare];
+                // clear least-significant set bit (faster than index lookup to powers array)
+                mask &= mask - 1UL;
             }
         }
 
         private void GenerateEnPassant()
         {
-            if (_bitBoardContext.EnPassantSquare.HasValue)
+            var enpOpt = _bitBoardContext.EnPassantSquare;
+            if (!enpOpt.HasValue)
+                return;
+
+            var enp = enpOpt.Value;
+            var player = _bitBoardContext.Player.Current;
+            var attackers = _bitBoardContext.Attackers;
+            var checkedSquares = _bitBoardContext.CheckedSquares;
+
+            var pawnMask = _bitBoardContext.Pieces[player][(byte)PieceTypeEnum.Pawn];
+            var shift = EnPassantShiftMasks[player] >> BoardConsts.FILE_FROM_SQUARE[enp];
+
+            if (attackers != 0)
             {
-                ulong shift = EnPassantShiftMasks[_bitBoardContext.Player.Current] >> BoardConsts.FILE_FROM_SQUARE[_bitBoardContext.EnPassantSquare.Value];
+                bool cantBlock = (Powers.powersOfTwo[enp] & checkedSquares) == 0;
+                bool cantCapture = (shift & attackers) == 0;
 
-                if (_bitBoardContext.Attackers != 0)
-                {
-                    bool cantBlock = (Powers.powersOfTwo[_bitBoardContext.EnPassantSquare.Value] & _bitBoardContext.CheckedSquares) == 0;
-                    bool cantCapture = (shift & _bitBoardContext.Attackers) == 0;
+                if (cantBlock && cantCapture)
+                    return;
+            }
 
-                    if (cantBlock && cantCapture)
-                        return;
-                }
+            ulong mask = shift & pawnMask;
 
-                ulong mask = shift & _bitBoardContext.Pieces[_bitBoardContext.Player.Current][(byte)PieceTypeEnum.Pawn];
+            mask &= player == Player.White
+                ? BoardConsts.RANK_5_FULL_STATE
+                : BoardConsts.RANK_4_FULL_STATE;
 
-                mask &= _bitBoardContext.Player.Current == Player.White
-                    ? BoardConsts.RANK_5_FULL_STATE
-                    : BoardConsts.RANK_4_FULL_STATE;
+            if (mask == 0)
+                return;
 
-                byte square;
+            var movesList = _movesList;
 
-                while (mask > 0)
-                {
-                    square = BitwiseHelper.FastBitScanForward(mask);
-                    mask ^= Powers.powersOfTwo[square];
+            while (mask != 0)
+            {
+                var sq = BitwiseHelper.FastBitScanForward(mask);
+                mask &= mask - 1UL;
 
-                    if (CheckEnPassantMoveMakesDiscoveredCheck(square))
-                        continue;
+                if (CheckEnPassantMoveMakesDiscoveredCheck((byte)sq))
+                    continue;
 
-                    _movesList.Add(new Move(square, _bitBoardContext.EnPassantSquare.Value, MoveTypeEnum.EnPassante));
-                }
+                movesList.Add(new Move((byte)sq, enp, MoveTypeEnum.EnPassante));
             }
         }
 
         private bool CheckEnPassantMoveMakesDiscoveredCheck(byte square)
         {
-            //clear oponnent pawn
+            if (_bitBoardContext.OpponentRooksAndQueens == 0 && _bitBoardContext.OpponentBishopsAndQueens == 0)
+                return false;
+
             ulong occupiedSquares = _bitBoardContext.OccupiedSquares;
             occupiedSquares ^= _bitBoardContext.Player.Current == Player.White
                 ? Powers.powersOfTwo[BoardConsts.SQUARES_BACKWARD[_bitBoardContext.EnPassantSquare.Value]]
                 : Powers.powersOfTwo[BoardConsts.SQUARES_FORWARD[_bitBoardContext.EnPassantSquare.Value]];
 
-            //clear current player pawn
             occupiedSquares ^= Powers.powersOfTwo[square];
             occupiedSquares ^= Powers.powersOfTwo[_bitBoardContext.EnPassantSquare.Value];
 
-            ulong rookAttacked = Slider.GetAttacks(_bitBoardContext.PieceTypeList[_bitBoardContext.Player.Current][(byte)PieceTypeEnum.King].GetAtIndex(0), occupiedSquares, MovesContainer.RookMagics);
-            ulong bishopAttacked = Slider.GetAttacks(_bitBoardContext.PieceTypeList[_bitBoardContext.Player.Current][(byte)PieceTypeEnum.King].GetAtIndex(0), occupiedSquares, MovesContainer.BishopMagics);
+            var kingSquare = _bitBoardContext.PieceTypeList[_bitBoardContext.Player.Current][(byte)PieceTypeEnum.King].GetAtIndex(0);
+            ulong rookAttacked = Slider.GetAttacks(occupiedSquares, MovesContainer.RookMagics[kingSquare]);
+            ulong bishopAttacked = Slider.GetAttacks(occupiedSquares, MovesContainer.BishopMagics[kingSquare]);
 
             return ((rookAttacked & _bitBoardContext.OpponentRooksAndQueens) != 0) 
                 || ((bishopAttacked & _bitBoardContext.OpponentBishopsAndQueens) != 0);

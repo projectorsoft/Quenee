@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using Queene.Core.Models;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Queene.Core.Engine.PerftCounter
@@ -14,24 +15,42 @@ namespace Queene.Core.Engine.PerftCounter
         {
             var moves = _game.GenerateMoves();
 
+            if (moves == null || moves.Length == 0)
+                return 0UL;
+
             ulong count = 0;
-            var fen = _game.GetFen();
+            var po = new ParallelOptions { MaxDegreeOfParallelism = maxParallelOperations };
 
-            var result = Parallel.ForEach(moves, new ParallelOptions { MaxDegreeOfParallelism = maxParallelOperations }, (move, state, index) =>
-            {
-                var board = _game.CloneBoard();
-                var extMove = board.MakeMove(move);
-                ulong nodes = 1;
-                if (depth > 1)
+            Parallel.ForEach<Move, (Board board, Perft perft)>(
+                source: moves,
+                parallelOptions: po,
+                localInit: () =>
                 {
-                    var perft = new Perft(board);
-                    nodes = perft.Run(depth - 1);
-                }
+                    var localBoard = _game.CloneBoard();
+                    var localPerft = new Perft(localBoard);
+                    return (localBoard, localPerft);
+                },
+                body: (move, loopState, local) =>
+                {
+                    var extMove = local.board.MakeMove(move);
+                    ulong nodes = 1;
+                    if (depth > 1)
+                        nodes = local.perft.Run(depth - 1);
 
-                Interlocked.Add(ref count, nodes);
+                    Interlocked.Add(ref count, nodes);
 
-                OnPrintResults?.Invoke(move.ToString(), nodes);
-            });
+                    var handler = OnPrintResults;
+
+                    if (handler != null)
+                        handler(move.ToString(), nodes);
+
+                    local.board.UnmakeMove(extMove);
+
+                    return local;
+                },
+                localFinally: local =>
+                {
+                });
 
             return count;
         }

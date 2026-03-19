@@ -21,58 +21,83 @@ namespace Queene.Core.MovesGenerating.Pieces
 
         protected void GenerateMoves(MagicResult[] magics, MoveGenerationTypeEnum generationType, SliderTypeEnum sliderType)
         {
-            ulong attacks;
+            var player = _bitBoardContext.Player.Current;
+            var opp = _bitBoardContext.Player.Oponnent;
+            var pieceList = _bitBoardContext.PieceTypeList[player][(byte)PieceType];
+            var count = pieceList.Count();
+            var occupied = _bitBoardContext.OccupiedSquares;
+            var empty = _bitBoardContext.EmptySquares;
+            var attackers = _bitBoardContext.Attackers;
+            var checkedSquares = _bitBoardContext.CheckedSquares;
+            var pinnersAll = _bitBoardContext.Pinners;
+            var pinnedSquares = _bitBoardContext.PinnedSquares;
+            var oppAll = _bitBoardContext.Pieces[opp][(byte)PieceTypeEnum.All];
+            var kingSquare = _bitBoardContext.PieceTypeList[player][(byte)PieceTypeEnum.King].GetAtIndex(0);
 
-            for (int i = 0; i < _bitBoardContext.PieceTypeList[_bitBoardContext.Player.Current][(byte)PieceType].Count(); i++)
+            for (int i = 0; i < count; i++)
             {
                 _moves = 0;
-                _square = _bitBoardContext.PieceTypeList[_bitBoardContext.Player.Current][(byte)PieceType].GetAtIndex(i);
-                attacks = GetAttacks(_square, _bitBoardContext.OccupiedSquares, magics);
+                _captures = 0;
+
+                _square = pieceList.GetAtIndex(i);
+
+                var attacks = GetAttacks(occupied, magics[_square]);
 
                 if (generationType == MoveGenerationTypeEnum.All)
-                    _moves = attacks & _bitBoardContext.EmptySquares;
+                    _moves = attacks & empty;
 
-                _captures = attacks & _bitBoardContext.Pieces[_bitBoardContext.Player.Oponnent][(byte)PieceTypeEnum.All];
+                _captures = attacks & oppAll;
 
-                if (_bitBoardContext.Attackers != 0)
+                if (attackers != 0)
                 {
-                    _moves &= _bitBoardContext.CheckedSquares;
-                    _captures &= _bitBoardContext.Attackers;
+                    _moves &= checkedSquares;
+                    _captures &= attackers;
                 }
 
-                if (_bitBoardContext.Pinners != 0)
+                if (pinnersAll != 0 && (pinnedSquares & Powers.powersOfTwo[_square]) != 0)
                 {
-                    if ((_bitBoardContext.PinnedSquares & Powers.powersOfTwo[_square]) != 0)
+                    var pinners = attacks & pinnersAll;
+
+                    if (pinners == 0)
                     {
-                        var pinners = attacks & _bitBoardContext.Pinners;
+                        _moves = 0;
+                        _captures = 0;
+                    }
+                    else
+                    {
+                        var valid = false;
+                        while (pinners != 0)
+                        {
+                            var pinnerSquare = BitwiseHelper.FastBitScanForward(pinners);
+                            pinners ^= Powers.powersOfTwo[pinnerSquare];
 
-                        if (pinners == 0)
-                            _moves = _captures = 0;
-                        else
-                            while (pinners > 0)
-                            {
-                                var pinnerSquare = BitwiseHelper.FastBitScanForward(pinners);
-                                var masksBeetwenSquares = GetMaskBeetwenSquares(pinnerSquare, sliderType);
+                            ulong masksBetween;
+                            if (sliderType == SliderTypeEnum.Bishop)
+                                masksBetween = SquaresBetweenMasksGeneratorHelper.MasksBeetwenSquaresDiagonals[pinnerSquare][kingSquare];
+                            else
+                                masksBetween = SquaresBetweenMasksGeneratorHelper.MasksBeetwenSquaresRanksAndFiles[pinnerSquare][kingSquare];
 
-                                pinners ^= Powers.powersOfTwo[pinnerSquare];
+                            if ((masksBetween & Powers.powersOfTwo[_square]) == 0)
+                                continue;
 
-                                if ((masksBeetwenSquares & Powers.powersOfTwo[_square]) == 0)
-                                {
-                                    if (pinners == 0)
-                                        _moves = _captures = 0;
+                            _moves &= (masksBetween ^ pinnedSquares);
+                            _captures &= (_bitBoardContext.Pinners & Powers.powersOfTwo[pinnerSquare]);
 
-                                    continue;
-                                }
+                            valid = true;
+                            break;
+                        }
 
-                                _moves &= (masksBeetwenSquares ^ _bitBoardContext.PinnedSquares);
-                                _captures &= (_bitBoardContext.Pinners & Powers.powersOfTwo[pinnerSquare]);
-
-                                break;
-                            }
+                        if (!valid)
+                        {
+                            _moves = 0;
+                            _captures = 0;
+                        }
                     }
                 }
 
-                AddMoves(_moves | _captures, _square, MoveTypeEnum.Move);
+                var combined = _moves | _captures;
+                if (combined != 0)
+                    AddMoves(combined, _square, MoveTypeEnum.Move);
             }
         }
 
@@ -84,19 +109,19 @@ namespace Queene.Core.MovesGenerating.Pieces
             return SquaresBetweenMasksGeneratorHelper.MasksBeetwenSquaresRanksAndFiles[pinnerSquare][_bitBoardContext.PieceTypeList[_bitBoardContext.Player.Current][(byte)PieceTypeEnum.King].GetAtIndex(0)];
         }
 
-        public static ulong GetAttacks(byte square, ulong occupied, MagicResult[] magics)
+        public static ulong GetAttacks(ulong occupied, MagicResult magic)
         {
-            occupied &= magics[square].Mask;
-            occupied *= magics[square].Magic;
-            occupied >>= magics[square].Shift;
-            return magics[square].Attacks[occupied];
+            occupied &= magic.Mask;
+            occupied *= magic.Magic;
+            occupied >>= magic.Shift;
+            return magic.Attacks[occupied];
         }
 
-        public static ulong GetXRayAttacks(ulong occcupied, ulong blockers, byte square, MagicResult[] magics)
+        public static ulong GetXRayAttacks(ulong occcupied, ulong blockers, MagicResult magic)
         {
-            ulong attacks = GetAttacks(square, occcupied, magics);
+            ulong attacks = GetAttacks(occcupied, magic);
             blockers &= attacks;
-            return attacks ^ GetAttacks(square, occcupied ^ blockers, magics);
+            return attacks ^ GetAttacks(occcupied ^ blockers, magic);
         }
     }
 }

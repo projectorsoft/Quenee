@@ -134,8 +134,9 @@ namespace QueeneEngine.Helpers.Bitwise
 		/// <returns></returns>
 		public static bool IsSet(ulong mask, int index)
 		{
-			return (mask & Powers.powersOfTwo[index]) != 0;
-		}
+            //return (mask & Powers.powersOfTwo[index]) != 0;
+            return (((mask >> index) & 1UL) != 0);
+        }
 
 		/// <summary>
 		/// Get numbers of set bits in mask

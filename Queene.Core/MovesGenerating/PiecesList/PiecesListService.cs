@@ -132,7 +132,7 @@ namespace Queene.Core.MovesGenerating.PiecesList
         private void MakeEnPassante(ExtendedMove move)
         {
             var opp = _bitBoardContext.Player.Oponnent;
-            var capturedSquare = _bitBoardContext.Player.Current == Player.White ? (byte)(move.To - 8) : (byte)(move.To + 8);
+            var capturedSquare = move.CaptureSquare.Value;
             var pieceIndex = _bitBoardContext.PieceIndices[opp][capturedSquare];
 
             _bitBoardContext.PieceIndices[opp][capturedSquare] = null;
@@ -145,7 +145,7 @@ namespace Queene.Core.MovesGenerating.PiecesList
         private void UnmakeEnPassante(ExtendedMove move)
         {
             var opp = _bitBoardContext.Player.Oponnent;
-            var capturedSquare = _bitBoardContext.Player.Current == Player.White ? (byte)(move.To - 8) : (byte)(move.To + 8);
+            var capturedSquare = move.CaptureSquare.Value;
 
             _bitBoardContext.PieceTypeList[opp][(byte)move.Captured.Value].Add(capturedSquare);
             var index = _bitBoardContext.PieceTypeList[opp][(byte)move.Captured.Value].GetLastIndex();
